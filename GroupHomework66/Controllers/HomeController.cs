@@ -1,11 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using GroupHomework66.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GroupHomework66.Controllers;
 
 public class HomeController : Controller
 {
+    [Authorize]
     public IActionResult Index()
     {
         return View();

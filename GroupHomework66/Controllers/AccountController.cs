@@ -32,8 +32,13 @@ public class AccountController : Controller
                 Email = model.Email,
                 UserName = model.Username,
                 PhoneNumber = model.PhoneNumber,
-                ProfilePicture= model.ProfilePicture
             };
+            
+            if (string.IsNullOrEmpty(model.ProfilePicture))
+                user.ProfilePicture = "https://dme.lk/images/user.jpg";
+            else
+                user.ProfilePicture = model.ProfilePicture;
+            
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
@@ -86,5 +91,18 @@ public class AccountController : Controller
             }
         }
         return View(model);
+    }
+    
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> LogOff()
+    {
+        await _signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using GroupHomework66.Enums;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GroupHomework66.ViewModels;
 
@@ -12,15 +13,16 @@ public class RegisterViewModel
     
     [Required]
     [Display(Name = "Username")]
+    [Remote("ValidateUserNameOnRegistration", "Validation", ErrorMessage = "Username occupied")]
     public string Username { get; set; }
 
     [Required]
     [Display(Name = "Phone Number")]
+    [Remote("ValidatePhoneNumber", "Validation", ErrorMessage = "Phone Number must contain digits!")]
     public string PhoneNumber { get; set; }
     
-    [Required]
     [Display(Name = "Profile Picture")]
-    public string ProfilePicture { get; set; }
+    public string? ProfilePicture { get; set; }
     
     [Required]
     [Display(Name = "Role")]
@@ -29,6 +31,7 @@ public class RegisterViewModel
     [Required]
     [DataType(DataType.Password)]
     [Display(Name = "Password")]
+    [Remote("ValidatePassword", "Validation", ErrorMessage = "Incorrect password (it must contain at least 8 characters, 1 digit and 1 symbol!)")]
     public string Password { get; set; }
 
     [Required]

@@ -1,34 +1,42 @@
 ﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@model LW54.ViewModels.LoginViewModel
+@model GroupHomework66.ViewModels.LoginViewModel
 
-<h2>Вход в приложение</h2>
+<h2 class="text-center">Вход</h2>
 
-<form method="post" asp-controller="Account" asp-action="Login">
+
+<form class="w-50 mx-auto px-1 py-3 border rounded-3 bg-light" method="post" asp-controller="Account" asp-action="Login">
     <div asp-validation-summary="ModelOnly"></div>
 
     <input type="hidden" value="@Model.ReturnUrl" asp-for="ReturnUrl">
-    <div>
-        <label asp-for="Email"></label><br/>
-        <input asp-for="Email"/>
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="Email">Введите email</label><br/>
+        <input class="form-control w-100" asp-for="Email"/>
         <span asp-validation-for="Email"></span>
     </div>
 
-    <div>
-        <label asp-for="Password"></label><br />
-        <input asp-for="Password" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="Password">Введите пароль</label><br />
+        <input class="form-control w-100" asp-for="Password" />
         <span asp-validation-for="Password"></span>
     </div>
 
-    <div>
-        <label asp-for="RememberMe"></label><br />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="RememberMe">Вас запомнить?</label><br />
         <input asp-for="RememberMe" />
     </div>
 
-    <div>
-        <input type="submit" value="Sign In" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <input class="btn btn-primary w-100" type="submit" value="Sign In" />
     </div>
 </form>
+
+
+<div class=" mt-3 d-flex justify-content-center align-items-center gap-3">
+    <span class="fs-6 fw-medium">No account yet?</span> <br>
+    <a asp-action="Register" asp-controller="Account" class="btn btn-dark">Sign up</a>
+</div>
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

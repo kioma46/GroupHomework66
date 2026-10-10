@@ -1,45 +1,77 @@
-﻿@model LW54.ViewModels.RegisterViewModel
+﻿@using GroupHomework66.Enums
+@model GroupHomework66.ViewModels.RegisterViewModel
 
-<h2>Registration of the new user</h2>
-<form method="post" asp-controller="Account" asp-action="Register">
+<h2 class="text-center">Регистрация</h2>
+<form class="w-50 mx-auto px-1 py-3 border rounded-3 bg-light" method="post" asp-controller="Account" asp-action="Register">
     <div asp-validation-summary="ModelOnly"></div>
-    <div>
-        <label asp-for="Email"></label><br />
-        <input asp-for="Email" />
+    
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="Role">Кто вы?</label><br />
+        <select id="role-select" class="form-control w-100" asp-for="Role" required>
+            <option selected disabled value="">Выберите роль</option>
+            <option value="@ChosenRole.Applicant">Соискатель</option>
+            <option value="@ChosenRole.Company">Работодатель</option>
+        </select>
+        <span asp-validation-for="Role"></span>
+    </div>
+    
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="Email">Введите email</label><br />
+        <input class="form-control w-100" asp-for="Email" required />
         <span asp-validation-for="Email"></span>
     </div>
 
-    <div>
-        <label asp-for="Username"></label><br />
-        <input asp-for="Username" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label id="username-label" asp-for="Username">Имя пользователя</label><br />
+        <input class="form-control w-100" asp-for="Username" required />
         <span asp-validation-for="Username"></span>
     </div>
     
-    <div>
-        <label asp-for="DateOfBirth"></label><br />
-        <input asp-for="DateOfBirth" type="date"/>
-        <span asp-validation-for="DateOfBirth"></span>
-
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="PhoneNumber">Номер телефона</label><br />
+        <input class="form-control w-100" asp-for="PhoneNumber" required />
+        <span asp-validation-for="PhoneNumber"></span>
+    </div>
+    
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label id="profile-pic-label" asp-for="ProfilePicture">Фото профиля</label><br />
+        <input class="form-control w-100" asp-for="ProfilePicture" />
+        <span asp-validation-for="ProfilePicture"></span>
     </div>
 
-    <div>
-        <label asp-for="Password"></label><br />
-        <input asp-for="Password" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="Password">Пароль</label><br />
+        <input class="form-control w-100" asp-for="Password" required />
         <span asp-validation-for="Password"></span>
 
     </div>
 
-    <div>
-        <label asp-for="PasswordConfirm"></label><br />
-        <input asp-for="PasswordConfirm" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <label asp-for="PasswordConfirm">Подтвердите пароль</label><br />
+        <input class="form-control w-100" asp-for="PasswordConfirm" required />
         <span asp-validation-for="PasswordConfirm"></span>
     </div>
 
-    <div>
-        <input type="submit" value="Sign Up" />
+    <div class="mb-2 w-75 mx-auto form-group">
+        <input class="btn btn-primary w-100" type="submit" value="Sign Up" />
     </div>
 </form>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $('#role-select').on('change', function(){
+            let selectedValue = $('#role-select').val();
+            if (selectedValue === "Applicant") 
+            {
+                $('#username-label').text('Имя пользователя');
+                $('#profile-pic-label').text('Фото профиля');
+            }
+            else if (selectedValue === "Company") 
+            {
+                $('#username-label').text('Название компании');
+                $('#profile-pic-label').text('Логотип компании');
+            }
+        });
+    </script>
 }

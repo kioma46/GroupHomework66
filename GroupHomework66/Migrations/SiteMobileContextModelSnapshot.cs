@@ -68,7 +68,6 @@ namespace GroupHomework66.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("ProfilePicture")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SecurityStamp")
