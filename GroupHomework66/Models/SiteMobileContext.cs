@@ -6,7 +6,7 @@ namespace GroupHomework66.Models;
 
 public class SiteMobileContext : IdentityDbContext<User, IdentityRole<int>, int>
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<Vacancy> Vacancies { get; set; } 
     
     public SiteMobileContext(DbContextOptions<SiteMobileContext> options) : base(options)
     {}
