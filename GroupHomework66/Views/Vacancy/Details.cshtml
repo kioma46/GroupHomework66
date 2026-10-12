@@ -1,0 +1,30 @@
+﻿@model GroupHomework66.Models.Vacancy
+
+<a class="btn btn-link ps-0 mb-3" asp-action="MyVacancies">← К моим вакансиям</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h1 class="card-title">@Model.Title</h1>
+            @if (Model.IsPublished)
+            {
+                <span class="badge bg-success align-self-start">Опубликована</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary align-self-start">Не опубликована</span>
+            }
+        </div>
+
+        <h5 class="text-muted mb-3">
+            @Model.Category.GetDisplayName() · @Model.Salary.ToString("N0") сом
+        </h5>
+
+        <p class="mb-1"><strong>Требуемый опыт:</strong> от @Model.ExperienceFrom до @Model.ExperienceTo лет</p>
+        <p class="mb-1"><strong>Создана:</strong> @Model.CreatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+        <p class="mb-3"><strong>Обновлена:</strong> @Model.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+
+        <h5>Описание и требования</h5>
+        <p style="white-space: pre-line;">@Model.Description</p>
+    </div>
+</div>

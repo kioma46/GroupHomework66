@@ -1,0 +1,58 @@
+﻿@model List<GroupHomework66.Models.Vacancy>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Мои вакансии</h1>
+    <a class="btn btn-primary" asp-action="Create">Создать вакансию</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">У вас пока нет вакансий.</div>
+}
+else
+{
+    foreach (var vacancy in Model)
+    {
+        var shortDescription = vacancy.Description.Length > 150
+            ? vacancy.Description.Substring(0, 150) + "..."
+            : vacancy.Description;
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h4 class="card-title">@vacancy.Title</h4>
+                    @if (vacancy.IsPublished)
+                    {
+                        <span class="badge bg-success align-self-start">Опубликована</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary align-self-start">Не опубликована</span>
+                    }
+                </div>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @vacancy.Category.GetDisplayName() · @vacancy.Salary.ToString("N0") сом
+                </h6>
+                <p class="card-text">@shortDescription</p>
+                <p class="text-muted small mb-3">
+                    Опыт: от @vacancy.ExperienceFrom до @vacancy.ExperienceTo лет ·
+                    Обновлено: @vacancy.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@vacancy.Id">Подробнее</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-action="Edit" asp-route-id="@vacancy.Id">Редактировать</a>
+
+                    <form asp-action="Refresh" asp-route-id="@vacancy.Id" method="post">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Обновить</button>
+                    </form>
+
+                    <form asp-action="TogglePublish" asp-route-id="@vacancy.Id" method="post">
+                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                            @(vacancy.IsPublished ? "Снять с публикации" : "Опубликовать")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}

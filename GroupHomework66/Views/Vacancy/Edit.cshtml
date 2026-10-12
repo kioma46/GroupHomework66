@@ -1,0 +1,48 @@
+﻿@model GroupHomework66.ViewModels.CreateVacancyViewModel
+
+<h1>Редактирование вакансии</h1>
+
+<form asp-action="Edit" asp-route-id="@ViewBag.VacancyId" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Category" class="form-label"></label>
+        <select asp-for="Category" class="form-select"
+                asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()">
+            <option value="">Выберите категорию</option>
+        </select>
+        <span asp-validation-for="Category" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Salary" class="form-label"></label>
+        <input asp-for="Salary" type="number" class="form-control" />
+        <span asp-validation-for="Salary" class="text-danger"></span>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="ExperienceFrom" class="form-label"></label>
+            <input asp-for="ExperienceFrom" type="number" class="form-control" />
+            <span asp-validation-for="ExperienceFrom" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="ExperienceTo" class="form-label"></label>
+            <input asp-for="ExperienceTo" type="number" class="form-control" />
+            <span asp-validation-for="ExperienceTo" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" rows="8" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a class="btn btn-outline-secondary" asp-action="MyVacancies">Отмена</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
