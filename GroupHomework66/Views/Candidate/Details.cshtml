@@ -1,0 +1,61 @@
+﻿@model GroupHomework66.Models.Resume
+
+<h1>Моё резюме</h1>
+
+<div>
+    <h2>@Model.Title</h2>
+    <p>
+        <strong>Категория:</strong>@Model.Category
+    </p>
+    <p>
+        <strong>Ожидаемая зарплата:</strong>@Model.ExpectedSalary
+    </p>
+    <p>
+        <strong>Telegram:</strong>@(Model.Telegram ?? "Не указан")
+    </p>
+    <p>
+        <strong>Email:</strong>@(Model.Email ?? "Не указан")
+    </p>
+    <p>
+        <strong>Телефон:</strong>@(Model.PhoneNumber ?? "Не указан")
+    </p>
+    <p>
+        <strong>Facebook:</strong>@(Model.Facebook ?? "Не указан")
+    </p>
+    <p>
+        <strong>LinkedIn:</strong>@(Model.LinkedIn ?? "Не указан")
+    </p>
+    <p>
+        <strong>Последнее обновление:</strong>@Model.UpdatedDate
+    </p>
+</div>
+<a asp-action="EditResume" asp-route-id="@Model.Id">Редактировать</a>
+<a asp-action="Index">Назад</a>
+
+<h2>Опыт работы</h2>
+
+<a asp-action="AddWorkExperience" asp-route-resumeId="@Model.Id">Добавить опыт работы</a>
+
+@if (!Model.WorkExperiences.Any())
+{
+    <p>Опыт работы пока не указан.</p>
+}
+else
+{
+    foreach (var experience in Model.WorkExperiences)
+    {
+        <div>
+            <h3>@experience.Position</h3>
+            <p>
+                <strong>Компания:</strong>@experience.CompanyName
+            </p>
+            <p>
+                <strong>Период:</strong>@experience.StartDate.ToString("MM.yyyy") - @(experience.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+            </p>
+            @if (!string.IsNullOrEmpty(experience.Description))
+            {
+                <p>@experience.Description</p>
+            }
+        </div>
+    }
+}

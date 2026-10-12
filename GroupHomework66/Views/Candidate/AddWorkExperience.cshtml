@@ -1,0 +1,35 @@
+﻿@model GroupHomework66.ViewModels.CreateWorkExperienceViewModel
+
+<h1>Добавить опыт работы</h1>
+
+<form asp-action="AddWorkExperience" method="post">
+    <input type="hidden" name="resumeId" value="@ViewBag.ResumeId" />
+    <div>
+        <label asp-for="CompanyName">Компания</label>
+        <input asp-for="CompanyName" />
+        <span asp-validation-for="CompanyName"></span>
+    </div>
+    <div>
+        <label asp-for="Position">Должность</label>
+        <input asp-for="Position" />
+        <span asp-validation-for="Position"></span>
+    </div>
+    <div>
+        <label asp-for="Description">Описание</label>
+        <textarea asp-for="Description"></textarea>
+    </div>
+    <div>
+        <label asp-for="StartDate">Дата начала</label>
+        <input asp-for="StartDate" type="date" />
+        <span asp-validation-for="StartDate"></span>
+    </div>
+    <div>
+        <label asp-for="EndDate">Дата окончания</label>
+        <input asp-for="EndDate" type="date" />
+    </div>
+    <button type="submit">Добавить</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

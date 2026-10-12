@@ -1,0 +1,49 @@
+﻿@model GroupHomework66.ViewModels.CreateResumeViewModel
+
+<h1>Редактирование резюме</h1>
+
+<form asp-action="EditResume" method="post">
+    <input type="hidden" name="id" value="@Context.Request.RouteValues["id"]" />
+    <div>
+        <label asp-for="Title"></label>
+        <input asp-for="Title" />
+        <span asp-validation-for="Title"></span>
+    </div>
+    <div>
+        <label asp-for="Category"></label>
+        <select asp-for="Category" asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()">
+            <option value="">Выберите категорию</option>
+        </select>
+        <span asp-validation-for="Category"></span>
+    </div>
+    <div>
+        <label asp-for="ExpectedSalary"></label>
+        <input asp-for="ExpectedSalary" type="number" />
+        <span asp-validation-for="ExpectedSalary"></span>
+    </div>
+    <div>
+        <label asp-for="Telegram"></label>
+        <input asp-for="Telegram" />
+    </div>
+    <div>
+        <label asp-for="Email"></label>
+        <input asp-for="Email" />
+    </div>
+    <div>
+        <label asp-for="PhoneNumber"></label>
+        <input asp-for="PhoneNumber" />
+    </div>
+    <div>
+        <label asp-for="Facebook"></label>
+        <input asp-for="Facebook" />
+    </div>
+    <div>
+        <label asp-for="LinkedIn"></label>
+        <input asp-for="LinkedIn" />
+    </div>
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

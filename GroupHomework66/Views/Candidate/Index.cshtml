@@ -1,0 +1,23 @@
+﻿@model List<GroupHomework66.Models.Resume>
+
+<h1>Мой профиль</h1>
+
+@if (!Model.Any())
+{
+    <p>У вас пока нет резюме.</p>
+
+    <a asp-action="CreateResume">Создать резюме</a>
+}
+else
+{
+    foreach (var resume in Model)
+    {
+        <div>
+            <h2>@resume.Title</h2>
+            <p>Категория: @resume.Category</p>
+            <p>Ожидаемая зарплата: @resume.ExpectedSalary</p>
+        </div>
+        <a asp-action="EditResume" asp-route-id="@resume.Id">Редактировать</a>
+        <a asp-action="Details" asp-route-id="@resume.Id">Подробнее</a>
+    }
+}
