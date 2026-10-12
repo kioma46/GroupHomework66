@@ -28,9 +28,9 @@
     <p>
         <strong>Последнее обновление:</strong>@Model.UpdatedDate
     </p>
+    <a asp-action="EditResume" asp-route-id="@Model.Id">Редактировать</a>
+    <a asp-action="Index">Назад</a>
 </div>
-<a asp-action="EditResume" asp-route-id="@Model.Id">Редактировать</a>
-<a asp-action="Index">Назад</a>
 
 <h2>Опыт работы</h2>
 
@@ -56,6 +56,77 @@ else
             {
                 <p>@experience.Description</p>
             }
+            <a asp-action="EditWorkExperience" asp-route-id="@experience.Id">Редактировать</a>
+            <form asp-action="DeleteWorkExperience" asp-route-id="@experience.Id" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" onclick="return confirm('Удалить этот опыт работы?');">Удалить</button>
+            </form>
+        </div>
+    }
+}
+
+<h2>Курсы</h2>
+
+<a asp-action="AddCourse" asp-route-resumeId="@Model.Id">Добавить курс</a>
+
+@if (!Model.Courses.Any())
+{
+    <p>Курсы пока не указаны.</p>
+}
+else
+{
+    foreach (var course in Model.Courses)
+    {
+        <div>
+            <h3>@course.Name</h3>
+            <p>
+                <strong>Организация:</strong>@course.Organization
+            </p>
+            <p>
+                <strong>Период:</strong>@course.StartDate.ToString("MM.yyyy") - @(course.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+            </p>
+            @if (!string.IsNullOrEmpty(course.Description))
+            {
+                <p>@course.Description</p>
+            }
+            <a asp-action="EditCourse" asp-route-id="@course.Id">Редактировать</a>
+            <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" onclick="return confirm('Удалить этот курс?');">Удалить</button>
+            </form>
+        </div>
+    }
+}
+
+<h2>Образование</h2>
+
+<a asp-action="AddEducation" asp-route-resumeId="@Model.Id">Добавить образование</a>
+
+@if (!Model.Educations.Any())
+{
+    <p>Образование пока не указано.</p>
+}
+else
+{
+    foreach (var education in Model.Educations)
+    {
+        <div>
+            <h3>@education.Institution</h3>
+            <p>
+                <strong>Специальность:</strong>@education.Specialty
+            </p>
+            <p>
+                <strong>Период:</strong>@education.StartDate.ToString("MM.yyyy") - @(education.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+            </p>
+            @if (!string.IsNullOrEmpty(education.Description))
+            {
+                <p>@education.Description</p>
+            }
+            <a asp-action="EditEducation" asp-route-id="@education.Id">Редактировать</a>
+            <form asp-action="DeleteEducation" asp-route-id="@education.Id" method="post" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" onclick="return confirm('Удалить образование?');">Удалить</button>
+            </form>
         </div>
     }
 }

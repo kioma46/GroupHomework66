@@ -1,0 +1,35 @@
+﻿@model GroupHomework66.ViewModels.CreateCourseViewModel
+
+<h1>Добавить курс</h1>
+
+<form asp-action="AddCourse" method="post">
+    <input type="hidden" name="resumeId" value="@ViewBag.ResumeId" />
+    <div>
+        <label asp-for="Name">Название</label>
+        <input asp-for="Name" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div>
+        <label asp-for="Organization">Организация</label>
+        <input asp-for="Organization" />
+        <span asp-validation-for="Organization"></span>
+    </div>
+    <div>
+        <label asp-for="Description">Описание</label>
+        <textarea asp-for="Description"></textarea>
+    </div>
+    <div>
+        <label asp-for="StartDate">Дата начала</label>
+        <input asp-for="StartDate" type="date" />
+        <span asp-validation-for="StartDate"></span>
+    </div>
+    <div>
+        <label asp-for="EndDate">Дата окончания</label>
+        <input asp-for="EndDate" type="date" />
+    </div>
+    <button type="submit">Добавить</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
