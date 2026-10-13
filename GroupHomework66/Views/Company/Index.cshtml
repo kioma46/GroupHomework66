@@ -1,0 +1,85 @@
+﻿@model GroupHomework66.ViewModels.CompanyProfileViewModel
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center gap-4 flex-wrap">
+        <img src="@Model.ProfilePicture" alt="Фото профиля" class="rounded-circle"
+             style="width:100px;height:100px;object-fit:cover;" />
+        <div class="flex-grow-1">
+            <h2 class="mb-1">@Model.CompanyName</h2>
+            <p class="mb-0 text-muted">Email: @Model.Email</p>
+            <p class="mb-0 text-muted">Телефон: @Model.PhoneNumber</p>
+        </div>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            Редактировать
+        </button>
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Мои вакансии</h1>
+    <a class="btn btn-primary" asp-controller="Vacancy" asp-action="Create">Создать вакансию</a>
+</div>
+
+@if (!Model.Vacancies.Any())
+{
+    <div class="alert alert-info">У вас пока нет вакансий.</div>
+}
+else
+{
+    foreach (var vacancy in Model.Vacancies)
+    {
+        var shortDescription = vacancy.Description.Length > 150
+            ? vacancy.Description.Substring(0, 150) + "..."
+            : vacancy.Description;
+
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h4 class="card-title">@vacancy.Title</h4>
+                    @if (vacancy.IsPublished)
+                    {
+                        <span class="badge bg-success align-self-start">Опубликована</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary align-self-start">Не опубликована</span>
+                    }
+                </div>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @vacancy.Category.GetDisplayName() · @vacancy.Salary.ToString("N0") сом
+                </h6>
+                <p class="card-text">@shortDescription</p>
+                <p class="text-muted small mb-3">
+                    Опыт: от @vacancy.ExperienceFrom до @vacancy.ExperienceTo лет ·
+                    Обновлено: @vacancy.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Vacancy" asp-action="Details" asp-route-id="@vacancy.Id">Подробнее</a>
+                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Vacancy" asp-action="Edit" asp-route-id="@vacancy.Id">Редактировать</a>
+
+                    <form asp-controller="Vacancy" asp-action="Refresh" asp-route-id="@vacancy.Id" method="post">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Обновить</button>
+                    </form>
+
+                    <form asp-controller="Vacancy" asp-action="TogglePublish" asp-route-id="@vacancy.Id" method="post">
+                        <button type="submit" class="btn btn-outline-warning btn-sm">
+                            @(vacancy.IsPublished ? "Снять с публикации" : "Опубликовать")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<partial name="_EditCompanyProfileModal" model="Model.Edit" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    @if (ViewBag.OpenModal == true)
+    {
+        <script>
+            new bootstrap.Modal(document.getElementById('editProfileModal')).show();
+        </script>
+    }
+}
