@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GroupHomework66.Controllers;
 
+[Authorize]
 public class ResponseController : Controller
 {
     private readonly SiteMobileContext _context;
@@ -27,7 +28,7 @@ public class ResponseController : Controller
 
     
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> CreateResponseAjax(int? resumeId, int? vacancyId)
     {
         if (resumeId != null && vacancyId != null)
@@ -51,7 +52,7 @@ public class ResponseController : Controller
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> RemoveResponseAjax(int? resumeId, int? vacancyId)
     {
         if (resumeId != null && vacancyId != null)
@@ -70,7 +71,7 @@ public class ResponseController : Controller
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> GetResponsesForCompanyAjax(int? companyId)
     {
         if (!companyId.HasValue)
@@ -94,7 +95,7 @@ public class ResponseController : Controller
     }
     
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> GetResponsesForApplicantAjax(int? applicantId)
     {
         if (!applicantId.HasValue)
