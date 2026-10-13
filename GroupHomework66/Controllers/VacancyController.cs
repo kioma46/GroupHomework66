@@ -17,15 +17,9 @@ public class VacancyController : Controller
         _context = context;
     }
     
-    public async Task<IActionResult> MyVacancies()
+    public IActionResult MyVacancies()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var vacancies = await _context.Vacancies
-            .Where(v => v.EmployerId == userId)
-            .OrderByDescending(v => v.UpdatedDate)
-            .ToListAsync();
-
-        return View(vacancies);
+        return RedirectToAction("Index", "Company");
     }
 
     [HttpGet]
@@ -65,7 +59,7 @@ public class VacancyController : Controller
 
         return RedirectToAction(nameof(MyVacancies));
     }
-    
+
     public async Task<IActionResult> Details(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -78,7 +72,7 @@ public class VacancyController : Controller
 
         return View(vacancy);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -103,7 +97,7 @@ public class VacancyController : Controller
         ViewBag.VacancyId = id;
         return View(model);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CreateVacancyViewModel model)
