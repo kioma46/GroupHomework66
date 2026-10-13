@@ -2,6 +2,7 @@
 using GroupHomework66.Models;
 using GroupHomework66.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,15 +12,29 @@ namespace GroupHomework66.Controllers;
 public class CandidateController : Controller
 {
     private readonly SiteMobileContext _context;
+    private readonly UserManager<User> _userManager;
 
-    public CandidateController(SiteMobileContext context)
+    public CandidateController(SiteMobileContext context, UserManager<User> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return NotFound();
+
+        ViewData["EditProfile"] = new EditProfileViewModel
+        {
+            Username = user.UserName ?? string.Empty,
+            Email = user.Email ?? string.Empty,
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
+            ProfilePicture = user.ProfilePicture
+        };
+
+        var userId = user.Id;
         var resumes = await _context.Resumes.Where(r => r.UserId == userId).ToListAsync();
 
         return View(resumes);
@@ -37,7 +52,8 @@ public class CandidateController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(model);
+            TempData["EditProfileError"] = "Проверьте правильность заполнения полей.";
+            return RedirectToAction(nameof(Index));
         }
 
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -521,5 +537,65 @@ public class CandidateController : Controller
         await _context.SaveChangesAsync();
         
         return RedirectToAction("Index", "Candidate");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return NotFound();
+        }
+        if (!ModelState.IsValid)
+        {
+            TempData["EditProfileError"] = "Проверьте правильность заполнения полей.";
+            return RedirectToAction(nameof(Index));
+        }
+        
+        if (user.UserName != model.Username)
+        {
+            var existingUser = await _userManager.FindByNameAsync(model.Username);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                ModelState.AddModelError(nameof(model.Username), "Это имя пользователя уже занято.");
+            }
+        }
+
+        if (user.Email != model.Email)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Этот адрес электронной почты уже используется.");
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
+            TempData["EditProfileError"] = "Проверьте правильность заполнения полей.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        user.UserName = model.Username;
+        user.Email = model.Email;
+        user.PhoneNumber = model.PhoneNumber;
+        user.ProfilePicture = model.ProfilePicture;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            return RedirectToAction(nameof(Index));
+        }
+
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        TempData["EditProfileError"] = "Не удалось сохранить изменения.";
+        return RedirectToAction(nameof(Index));
     }
 }
