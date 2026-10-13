@@ -1,132 +1,203 @@
 ﻿@model GroupHomework66.Models.Resume
 
-<h1>Моё резюме</h1>
+@{
+    ViewData["Title"] = "Подробная информация о резюме";
+}
 
-<div>
-    <h2>@Model.Title</h2>
-    <p>
-        <strong>Категория:</strong>@Model.Category
-    </p>
-    <p>
-        <strong>Ожидаемая зарплата:</strong>@Model.ExpectedSalary
-    </p>
-    <p>
-        <strong>Telegram:</strong>@(Model.Telegram ?? "Не указан")
-    </p>
-    <p>
-        <strong>Email:</strong>@(Model.Email ?? "Не указан")
-    </p>
-    <p>
-        <strong>Телефон:</strong>@(Model.PhoneNumber ?? "Не указан")
-    </p>
-    <p>
-        <strong>Facebook:</strong>@(Model.Facebook ?? "Не указан")
-    </p>
-    <p>
-        <strong>LinkedIn:</strong>@(Model.LinkedIn ?? "Не указан")
-    </p>
-    <p>
-        <strong>Последнее обновление:</strong>@Model.UpdatedDate
-    </p>
-    <a asp-action="EditResume" asp-route-id="@Model.Id">Редактировать</a>
-    <a asp-action="Index">Назад</a>
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="mb-2">@Model.Title</h1>
+            @if (Model.IsPublished)
+            {
+                <span class="badge bg-success"><i class="fa-solid fa-eye me-1"></i>Опубликовано</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary"><i class="fa-solid fa-eye-slash me-1"></i>Скрыто</span>
+            }
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-start">
+            <a asp-action="EditResume" asp-route-id="@Model.Id" class="btn btn-outline-primary"> <i class="fa-solid fa-pen me-1"></i> Редактировать</a>
+            <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Candidate", new { id = Model.Id })" />
+                <button type="submit" class="btn btn-outline-secondary">@(Model.IsPublished ? "Снять с публикации" : "Опубликовать")</button>
+            </form>
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3">
+            <h4 class="mb-0"><i class="fa-solid fa-user-tie me-2"></i>Основная информация</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-md-4 col-lg-3">Название резюме</dt>
+                <dd class="col-md-8 col-lg-9">@Model.Title</dd>
+                <dt class="col-md-4 col-lg-3">Категория</dt>
+                <dd class="col-md-8 col-lg-9">@Model.Category.GetDisplayName()</dd>
+                <dt class="col-md-4 col-lg-3">Ожидаемая зарплата</dt>
+                <dd class="col-md-8 col-lg-9">@Model.ExpectedSalary.ToString("N0")</dd>
+                <dt class="col-md-4 col-lg-3">Дата обновления</dt>
+                <dd class="col-md-8 col-lg-9">@Model.UpdatedDate.ToString("dd.MM.yyyy HH:mm")</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3">
+            <h4 class="mb-0"><i class="fa-solid fa-address-card me-2"></i>Контактная информация</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-md-4 col-lg-3"><i class="fa-brands fa-telegram me-1"></i>Telegram</dt>
+                <dd class="col-md-8 col-lg-9 text-break">@Model.Telegram</dd>
+                <dt class="col-md-4 col-lg-3"><i class="fa-solid fa-envelope me-1"></i>Электронная почта</dt>
+                <dd class="col-md-8 col-lg-9 text-break">@Model.Email</dd>
+                <dt class="col-md-4 col-lg-3"><i class="fa-solid fa-phone me-1"></i>Телефон</dt>
+                <dd class="col-md-8 col-lg-9 text-break">@Model.PhoneNumber</dd>
+                @if (!string.IsNullOrWhiteSpace(Model.Facebook))
+                {
+                    <dt class="col-md-4 col-lg-3"><i class="fa-brands fa-facebook me-1"></i>Facebook</dt>
+                    <dd class="col-md-8 col-lg-9 text-break">@Model.Facebook</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.LinkedIn))
+                {
+                    <dt class="col-md-4 col-lg-3"><i class="fa-brands fa-linkedin me-1"></i>LinkedIn</dt>
+                    <dd class="col-md-8 col-lg-9 text-break">@Model.LinkedIn</dd>
+                }
+            </dl>
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h4 class="mb-0"><i class="fa-solid fa-briefcase me-2"></i>Опыт работы</h4>
+            <a asp-action="AddWorkExperience" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить опыт</a>
+        </div>
+        <div class="card-body">
+            @if (!Model.WorkExperiences.Any())
+            {
+                <p class="text-muted mb-0">Опыт работы пока не добавлен.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var experience in Model.WorkExperiences)
+                    {
+                        <div class="border rounded-3 p-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                    <h5 class="mb-1">@experience.Position</h5>
+                                    <div class="text-muted mb-2"><i class="fa-regular fa-building me-1"></i>@experience.CompanyName</div>
+                                    <div class="small text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i>
+                                        @experience.StartDate.ToString("MM.yyyy") - @(experience.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="EditWorkExperience" asp-route-id="@experience.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
+                                    <form asp-action="DeleteWorkExperience" asp-route-id="@experience.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить этот опыт работы?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(experience.Description))
+                            {
+                                <hr />
+                                <p class="mb-0 text-break">@experience.Description</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h4 class="mb-0"><i class="fa-solid fa-graduation-cap me-2"></i>Образование</h4>
+            <a asp-action="AddEducation" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить образование</a>
+        </div>
+        <div class="card-body">
+            @if (!Model.Educations.Any())
+            {
+                <p class="text-muted mb-0">Образование пока не добавлено.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var education in Model.Educations)
+                    {
+                        <div class="border rounded-3 p-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                    <h5 class="mb-1">@education.Institution</h5>
+                                    <div class="mb-2">@education.Specialty</div>
+                                    <div class="small text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i>
+                                        @education.StartDate.ToString("MM.yyyy") - @(education.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="EditEducation" asp-route-id="@education.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
+                                    <form asp-action="DeleteEducation" asp-route-id="@education.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить эту запись об образовании?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(education.Description))
+                            {
+                                <hr />
+                                <p class="mb-0 text-break">@education.Description</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <h4 class="mb-0"><i class="fa-solid fa-certificate me-2"></i>Курсы и повышение квалификации</h4>
+            <a asp-action="AddCourse" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить курс</a>
+        </div>
+        <div class="card-body">
+            @if (!Model.Courses.Any())
+            {
+                <p class="text-muted mb-0">Курсы пока не добавлены.</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var course in Model.Courses)
+                    {
+                        <div class="border rounded-3 p-3">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                                <div>
+                                    <h5 class="mb-1">@course.Name</h5>
+                                    <div class="text-muted mb-2"><i class="fa-regular fa-building me-1"></i>@course.Organization</div>
+                                    <div class="small text-muted mb-3"><i class="fa-regular fa-calendar me-1"></i>
+                                        @course.StartDate.ToString("MM.yyyy") - @(course.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="EditCourse" asp-route-id="@course.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
+                                    <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить этот курс?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(course.Description))
+                            {
+                                <hr />
+                                <p class="mb-0 text-break">@course.Description</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>К моим резюме</a>
+    </div>
 </div>
-
-<h2>Опыт работы</h2>
-
-<a asp-action="AddWorkExperience" asp-route-resumeId="@Model.Id">Добавить опыт работы</a>
-
-@if (!Model.WorkExperiences.Any())
-{
-    <p>Опыт работы пока не указан.</p>
-}
-else
-{
-    foreach (var experience in Model.WorkExperiences)
-    {
-        <div>
-            <h3>@experience.Position</h3>
-            <p>
-                <strong>Компания:</strong>@experience.CompanyName
-            </p>
-            <p>
-                <strong>Период:</strong>@experience.StartDate.ToString("MM.yyyy") - @(experience.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
-            </p>
-            @if (!string.IsNullOrEmpty(experience.Description))
-            {
-                <p>@experience.Description</p>
-            }
-            <a asp-action="EditWorkExperience" asp-route-id="@experience.Id">Редактировать</a>
-            <form asp-action="DeleteWorkExperience" asp-route-id="@experience.Id" method="post" style="display: inline;">
-                @Html.AntiForgeryToken()
-                <button type="submit" onclick="return confirm('Удалить этот опыт работы?');">Удалить</button>
-            </form>
-        </div>
-    }
-}
-
-<h2>Курсы</h2>
-
-<a asp-action="AddCourse" asp-route-resumeId="@Model.Id">Добавить курс</a>
-
-@if (!Model.Courses.Any())
-{
-    <p>Курсы пока не указаны.</p>
-}
-else
-{
-    foreach (var course in Model.Courses)
-    {
-        <div>
-            <h3>@course.Name</h3>
-            <p>
-                <strong>Организация:</strong>@course.Organization
-            </p>
-            <p>
-                <strong>Период:</strong>@course.StartDate.ToString("MM.yyyy") - @(course.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
-            </p>
-            @if (!string.IsNullOrEmpty(course.Description))
-            {
-                <p>@course.Description</p>
-            }
-            <a asp-action="EditCourse" asp-route-id="@course.Id">Редактировать</a>
-            <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post" style="display: inline;">
-                @Html.AntiForgeryToken()
-                <button type="submit" onclick="return confirm('Удалить этот курс?');">Удалить</button>
-            </form>
-        </div>
-    }
-}
-
-<h2>Образование</h2>
-
-<a asp-action="AddEducation" asp-route-resumeId="@Model.Id">Добавить образование</a>
-
-@if (!Model.Educations.Any())
-{
-    <p>Образование пока не указано.</p>
-}
-else
-{
-    foreach (var education in Model.Educations)
-    {
-        <div>
-            <h3>@education.Institution</h3>
-            <p>
-                <strong>Специальность:</strong>@education.Specialty
-            </p>
-            <p>
-                <strong>Период:</strong>@education.StartDate.ToString("MM.yyyy") - @(education.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
-            </p>
-            @if (!string.IsNullOrEmpty(education.Description))
-            {
-                <p>@education.Description</p>
-            }
-            <a asp-action="EditEducation" asp-route-id="@education.Id">Редактировать</a>
-            <form asp-action="DeleteEducation" asp-route-id="@education.Id" method="post" style="display: inline;">
-                @Html.AntiForgeryToken()
-                <button type="submit" onclick="return confirm('Удалить образование?');">Удалить</button>
-            </form>
-        </div>
-    }
-}

@@ -1,23 +1,95 @@
 ﻿@model List<GroupHomework66.Models.Resume>
 
-<h1>Мой профиль</h1>
-
-@if (!Model.Any())
-{
-    <p>У вас пока нет резюме.</p>
-
-    <a asp-action="CreateResume">Создать резюме</a>
+@{
+    ViewData["Title"] = "Мой профиль";
 }
-else
-{
-    foreach (var resume in Model)
-    {
+
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
-            <h2>@resume.Title</h2>
-            <p>Категория: @resume.Category</p>
-            <p>Ожидаемая зарплата: @resume.ExpectedSalary</p>
+            <h1 class="mb-1">Мой профиль</h1>
+            <p class="text-muted mb-0">Управляйте своими резюме и контактной информацией.</p>
         </div>
-        <a asp-action="EditResume" asp-route-id="@resume.Id">Редактировать</a>
-        <a asp-action="Details" asp-route-id="@resume.Id">Подробнее</a>
+        <a asp-action="CreateResume" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Создать резюме</a>
+    </div>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light border text-center py-5">
+            <i class="fa-regular fa-file-lines fa-3x text-secondary mb-3"></i>
+            <h4>У вас пока нет резюме</h4>
+            <p class="text-muted">Создайте первое резюме, чтобы указать свои навыки и опыт.</p>
+            <a asp-action="CreateResume" class="btn btn-primary">Создать резюме</a>
+        </div>
     }
-}
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            @foreach (var resume in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                <h4 class="card-title mb-0">@resume.Title</h4>
+                                @if (resume.IsPublished)
+                                {
+                                    <span class="badge bg-success flex-shrink-0">Опубликовано</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary flex-shrink-0">Скрыто</span>
+                                }
+                            </div>
+                            <p class="text-muted small mb-3">Обновлено: @resume.UpdatedDate.ToString("dd.MM.yyyy")</p>
+                            <hr />
+                            <h6 class="text-uppercase text-muted small mb-3">Основная информация</h6>
+                            <dl class="row mb-3">
+                                <dt class="col-sm-5">Категория</dt>
+                                <dd class="col-sm-7">@resume.Category.GetDisplayName()</dd>
+                                <dt class="col-sm-5">Ожидаемая зарплата</dt>
+                                <dd class="col-sm-7">@resume.ExpectedSalary.ToString("N0")</dd>
+                            </dl>
+                            <h6 class="text-uppercase text-muted small mb-3">Контактная информация</h6>
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5">Telegram</dt>
+                                <dd class="col-sm-7 text-break">@resume.Telegram</dd>
+                                <dt class="col-sm-5">Email</dt>
+                                <dd class="col-sm-7 text-break">@resume.Email</dd>
+                                <dt class="col-sm-5">Телефон</dt>
+                                <dd class="col-sm-7 text-break">@resume.PhoneNumber</dd>
+                                @if (!string.IsNullOrWhiteSpace(resume.Facebook))
+                                {
+                                    <dt class="col-sm-5">Facebook</dt>
+                                    <dd class="col-sm-7 text-break">@resume.Facebook</dd>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(resume.LinkedIn))
+                                {
+                                    <dt class="col-sm-5">LinkedIn</dt>
+                                    <dd class="col-sm-7 text-break">@resume.LinkedIn</dd>
+                                }
+                            </dl>
+                            <div class="mt-auto pt-3">
+                                <hr />
+                                <div class="d-flex flex-wrap align-items-start gap-2">
+                                    <a asp-action="Details" asp-route-id="@resume.Id" class="btn btn-primary btn-sm">Подробнее</a>
+                                    <a asp-action="EditResume" asp-route-id="@resume.Id" class="btn btn-outline-primary btn-sm">Редактировать</a>
+                                    <form asp-action="Update" asp-route-id="@resume.Id" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-rotate me-1"></i>Обновить</button>
+                                    </form>
+                                    <form asp-action="Publish" asp-route-id="@resume.Id" method="post">
+                                        <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Candidate")" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                            @(resume.IsPublished ? "Снять с публикации" : "Опубликовать")
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

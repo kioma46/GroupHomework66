@@ -1,47 +1,69 @@
 ﻿@model GroupHomework66.ViewModels.CreateResumeViewModel
 
-<h1>Создание резюме</h1>
+@{
+    ViewData["Title"] = "Создание резюме";
+}
 
-<form asp-action="CreateResume" method="post">
-    <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title" />
-        <span asp-validation-for="Title"></span>
+<div class="container py-4">
+    <h1 class="text-center mb-2">Создание резюме</h1>
+    <p class="text-muted text-center mb-4">Расскажите о себе, чтобы работодатели могли найти вас.</p>
+    <div class="row justify-content-center">
+        <form asp-action="CreateResume" method="post" class="col-12 col-md-8 col-lg-6 p-4 border rounded-3 bg-light">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <h5 class="mb-3"> <i class="fa-solid fa-file-lines me-2"></i>Основная информация</h5>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" placeholder="Например, Junior C# Developer" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <select asp-for="Category" asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()" class="form-select">
+                    <option value="">Выберите категорию</option>
+                </select>
+                <span asp-validation-for="Category" class="text-danger small"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="ExpectedSalary" class="form-label"></label>
+                <input asp-for="ExpectedSalary" type="number" min="0" step="0.01" class="form-control" placeholder="Например, 50000" />
+                <span asp-validation-for="ExpectedSalary" class="text-danger small"></span>
+            </div>
+            <hr />
+            <h5 class="mb-3"><i class="fa-solid fa-address-card me-2"></i>Контактная информация</h5>
+            <div class="mb-3">
+                <label asp-for="Telegram" class="form-label"></label>
+                <input asp-for="Telegram" class="form-control" placeholder="Ваш Telegram или ссылка на профиль" />
+                <span asp-validation-for="Telegram" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="example@mail.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+996 ..." />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Facebook" class="form-label"></label>
+                <input asp-for="Facebook" type="url" class="form-control" placeholder="https://facebook.com/..." />
+                <span asp-validation-for="Facebook" class="text-danger small"></span>
+                <div class="form-text">Необязательное поле.</div>
+            </div>
+            <div class="mb-4">
+                <label asp-for="LinkedIn" class="form-label"></label>
+                <input asp-for="LinkedIn" type="url" class="form-control" placeholder="https://linkedin.com/in/..." />
+                <span asp-validation-for="LinkedIn" class="text-danger small"></span>
+                <div class="form-text">Необязательное поле.</div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary"> <i class="fa-solid fa-plus me-2"></i> Создать резюме</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <label asp-for="Category"></label>
-        <select asp-for="Category" asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()">
-            <option value="">Выберите категорию</option>
-        </select>
-        <span asp-validation-for="Category"></span>
-    </div>
-    <div>
-        <label asp-for="ExpectedSalary"></label>
-        <input asp-for="ExpectedSalary" type="number" />
-        <span asp-validation-for="ExpectedSalary"></span>
-    </div>
-    <div>
-        <label asp-for="Telegram"></label>
-        <input asp-for="Telegram" />
-    </div>
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" />
-    </div>
-    <div>
-        <label asp-for="PhoneNumber"></label>
-        <input asp-for="PhoneNumber" />
-    </div>
-    <div>
-        <label asp-for="Facebook"></label>
-        <input asp-for="Facebook" />
-    </div>
-    <div>
-        <label asp-for="LinkedIn"></label>
-        <input asp-for="LinkedIn" />
-    </div>
-    <button type="submit">Создать резюме</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

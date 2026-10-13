@@ -1,48 +1,67 @@
 ﻿@model GroupHomework66.ViewModels.CreateResumeViewModel
 
-<h1>Редактирование резюме</h1>
+@{
+    ViewData["Title"] = "Редактировать резюме";
+}
 
-<form asp-action="EditResume" method="post">
-    <input type="hidden" name="id" value="@Context.Request.RouteValues["id"]" />
-    <div>
-        <label asp-for="Title"></label>
-        <input asp-for="Title" />
-        <span asp-validation-for="Title"></span>
+<div class="container py-4">
+    <h1 class="text-center mb-4">Редактировать резюме</h1>
+    <div class="row justify-content-center">
+        <form asp-action="EditResume" method="post" class="col-12 col-md-8 col-lg-6 p-4 border rounded-3 bg-light">
+            <input type="hidden" name="id" value="@Context.Request.RouteValues["id"]" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <h5 class="mb-3">Основная информация</h5>
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" placeholder="Например, Junior C# Developer" />
+                <span asp-validation-for="Title" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <select asp-for="Category" asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()" class="form-select">
+                     <option value="">Выберите категорию</option>
+                </select>
+                <span asp-validation-for="Category" class="text-danger small"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="ExpectedSalary" class="form-label"></label>
+                <input asp-for="ExpectedSalary" type="number" min="0" step="0.01" class="form-control" />
+                <span asp-validation-for="ExpectedSalary" class="text-danger small"></span>
+            </div>
+            <hr />
+            <h5 class="mb-3">Контактная информация</h5>
+            <div class="mb-3">
+                <label asp-for="Telegram" class="form-label"></label>
+                <input asp-for="Telegram" class="form-control" placeholder="Ваш Telegram" />
+                <span asp-validation-for="Telegram" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" placeholder="example@mail.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="+996 ..." />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Facebook" class="form-label"></label>
+                <input asp-for="Facebook" class="form-control" placeholder="https://..." />
+                <span asp-validation-for="Facebook" class="text-danger small"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="LinkedIn" class="form-label"></label>
+                <input asp-for="LinkedIn" class="form-control" placeholder="https://..." />
+                <span asp-validation-for="LinkedIn" class="text-danger small"></span>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Вернуться к резюме</a>
+            </div>
+        </form>
     </div>
-    <div>
-        <label asp-for="Category"></label>
-        <select asp-for="Category" asp-items="Html.GetEnumSelectList<GroupHomework66.Enums.VacancyCategory>()">
-            <option value="">Выберите категорию</option>
-        </select>
-        <span asp-validation-for="Category"></span>
-    </div>
-    <div>
-        <label asp-for="ExpectedSalary"></label>
-        <input asp-for="ExpectedSalary" type="number" />
-        <span asp-validation-for="ExpectedSalary"></span>
-    </div>
-    <div>
-        <label asp-for="Telegram"></label>
-        <input asp-for="Telegram" />
-    </div>
-    <div>
-        <label asp-for="Email"></label>
-        <input asp-for="Email" />
-    </div>
-    <div>
-        <label asp-for="PhoneNumber"></label>
-        <input asp-for="PhoneNumber" />
-    </div>
-    <div>
-        <label asp-for="Facebook"></label>
-        <input asp-for="Facebook" />
-    </div>
-    <div>
-        <label asp-for="LinkedIn"></label>
-        <input asp-for="LinkedIn" />
-    </div>
-    <button type="submit">Сохранить изменения</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

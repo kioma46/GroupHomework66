@@ -487,4 +487,39 @@ public class CandidateController : Controller
 
         return RedirectToAction(nameof(Details), new { id = resumeId });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Publish(int id, string? returnUrl)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+        if (resume == null)
+            return NotFound();
+
+        resume.IsPublished = !resume.IsPublished;
+        await _context.SaveChangesAsync();
+        
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(int id)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+        if (resume == null)
+            return NotFound();
+
+        resume.UpdatedDate = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        
+        return RedirectToAction("Index", "Candidate");
+    }
 }

@@ -22,10 +22,21 @@
                     </li>
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item"\>
-                            @User.Identity.Name
-                        </li>
-                        <li class="nav-item"\>
+                        if (User.IsInRole("Applicant"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Candidate" asp-action="Index">@User.Identity.Name</a>
+                            </li>
+                        }
+                        <!-- 
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="Index">@User.Identity.Name</a>
+                            </li>
+                        }
+                        -->
+                        <li class="nav-item" >
                             <form asp-action="LogOff" asp-controller="Account">
                                 <input type="submit" value="LogOff"/>
                             </form>
@@ -33,10 +44,10 @@
                     }
                     else
                     {
-                        <li class="nav-item"\>
+                        <li class="nav-item" >
                             <a asp-action="Login" asp-controller="Account">Login</a>
                         </li>
-                        <li class="nav-item"\>
+                        <li class="nav-item" >
                             <a asp-action="Register" asp-controller="Account">Sign Up</a>
                         </li>
                     }
