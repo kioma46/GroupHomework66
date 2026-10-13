@@ -92,6 +92,32 @@ namespace GroupHomework66.Migrations
                     b.ToTable("Educations");
                 });
 
+            modelBuilder.Entity("GroupHomework66.Models.Response", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ResponseDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("VacancyId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResumeId");
+
+                    b.HasIndex("VacancyId");
+
+                    b.ToTable("Responses");
+                });
+
             modelBuilder.Entity("GroupHomework66.Models.Resume", b =>
                 {
                     b.Property<int>("Id")
@@ -447,6 +473,25 @@ namespace GroupHomework66.Migrations
                         .IsRequired();
 
                     b.Navigation("Resume");
+                });
+
+            modelBuilder.Entity("GroupHomework66.Models.Response", b =>
+                {
+                    b.HasOne("GroupHomework66.Models.Resume", "Resume")
+                        .WithMany()
+                        .HasForeignKey("ResumeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GroupHomework66.Models.Vacancy", "Vacancy")
+                        .WithMany()
+                        .HasForeignKey("VacancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resume");
+
+                    b.Navigation("Vacancy");
                 });
 
             modelBuilder.Entity("GroupHomework66.Models.Resume", b =>

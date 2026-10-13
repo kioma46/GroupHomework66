@@ -11,7 +11,7 @@ public class SiteMobileContext : IdentityDbContext<User, IdentityRole<int>, int>
     public DbSet<WorkExperience> WorkExperiences { get; set; }
     public DbSet<Education> Educations { get; set; }
     public DbSet<Course> Courses { get; set; }
-    
+    public DbSet<Response> Responses { get; set; }
     public SiteMobileContext(DbContextOptions<SiteMobileContext> options) : base(options)
     {}
 }
