@@ -67,8 +67,35 @@ public class VacancyController : Controller
     public async Task<IActionResult> Details(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var vacancy = await _context.Vacancies
-            .FirstOrDefaultAsync(v => v.Id == id && v.EmployerId == userId);
+        Vacancy? vacancy;
+
+        if (User.IsInRole("Company"))
+        {
+            vacancy = await _context.Vacancies
+                .FirstOrDefaultAsync(v => v.Id == id && v.EmployerId == userId);
+        }
+        else
+        {
+            vacancy = await _context.Vacancies
+                .FirstOrDefaultAsync(v => v.Id == id && v.IsPublished);
+
+            if (vacancy != null)
+            {
+                var userResumeIds = await _context.Resumes
+                    .Where(r => r.UserId == userId)
+                    .Select(r => r.Id)
+                    .ToListAsync();
+
+                vacancy.IsRespondedByTheCurrentUser = await _context.Responses
+                    .AnyAsync(r => r.VacancyId == id && userResumeIds.Contains(r.ResumeId));
+
+                ViewBag.UserResumes = await _context.Resumes
+                    .Where(r => r.UserId == userId)
+                    .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Title })
+                    .ToListAsync();
+            }
+        }
+
         if (vacancy == null)
         {
             return NotFound();
@@ -179,6 +206,21 @@ public class VacancyController : Controller
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var vacancies = await _context.Vacancies.ToListAsync();
+
+        var userResumeIds = await _context.Resumes
+            .Where(r => r.UserId == userId)
+            .Select(r => r.Id)
+            .ToListAsync();
+
+        var respondedVacancyIds = await _context.Responses
+            .Where(r => userResumeIds.Contains(r.ResumeId))
+            .Select(r => r.VacancyId)
+            .ToListAsync();
+
+        foreach (var vacancy in vacancies)
+        {
+            vacancy.IsRespondedByTheCurrentUser = respondedVacancyIds.Contains(vacancy.Id);
+        }
 
         ViewBag.UserResumes = await _context.Resumes
             .Where(r => r.UserId == userId)

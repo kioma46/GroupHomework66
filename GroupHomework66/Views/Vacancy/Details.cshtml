@@ -1,20 +1,31 @@
 ﻿@model GroupHomework66.Models.Vacancy
 
-<a class="btn btn-link ps-0 mb-3" asp-action="MyVacancies">← К моим вакансиям</a>
+@if (User.IsInRole("Company"))
+{
+    <a class="btn btn-link ps-0 mb-3" asp-action="MyVacancies">← К моим вакансиям</a>
+}
+@if (User.IsInRole("Applicant"))
+{
+    <a class="btn btn-link ps-0 mb-3" asp-action="List" asp-controller="Vacancy">← Назад к списку</a>
+}
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <div class="d-flex justify-content-between">
-            <h1 class="card-title">@Model.Title</h1>
-            @if (Model.IsPublished)
-            {
-                <span class="badge bg-success align-self-start">Опубликована</span>
-            }
-            else
-            {
-                <span class="badge bg-secondary align-self-start">Не опубликована</span>
-            }
-        </div>
+        @if (User.IsInRole("Company"))
+        {
+            <div class="d-flex justify-content-between">
+                <h1 class="card-title">@Model.Title</h1>
+
+                @if (Model.IsPublished)
+                {
+                    <span class="badge bg-success align-self-start">Опубликована</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary align-self-start">Не опубликована</span>
+                }
+            </div>
+        }
 
         <h5 class="text-muted mb-3">
             @Model.Category.GetDisplayName() · @Model.Salary.ToString("N0") сом
@@ -26,5 +37,116 @@
 
         <h5>Описание и требования</h5>
         <p style="white-space: pre-line;">@Model.Description</p>
+        
+        @if (User.IsInRole("Applicant"))
+        {
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-sm @(Model.IsRespondedByTheCurrentUser ? "btn-outline-secondary" : "btn-outline-primary") button-response-toggle"
+                        type="button"
+                        data-id="@Model.Id"
+                        data-responded="@Model.IsRespondedByTheCurrentUser.ToString().ToLower()">
+                    @(Model.IsRespondedByTheCurrentUser ? "Убрать отклик" : "Откликнуться")
+                </button>
+            </div>
+        }
     </div>
 </div>
+
+@if (User.IsInRole("Applicant"))
+{
+    <!-- Модальное окно для выбора резюме -->
+    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responseModalLabel">Выберите резюме для отклика</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="modalVacancyId" />
+                    <div class="mb-3">
+                        <label for="resumeSelect" class="form-label">Ваши резюме</label>
+                        <select class="form-select" id="resumeSelect" asp-items="ViewBag.UserResumes">
+                            <option value="">-- Выберите резюме --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" id="btnSubmitResponse">Отправить отклик</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @section Scripts
+{
+<script>
+    $(document).ready(function () {
+        let activeBtn = null;
+        let responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+
+        $(document).on('click', '.button-response-toggle', function () {
+            activeBtn = $(this);
+            let vacancyId = activeBtn.data('id');
+            let isResponded = activeBtn.data('responded') === true || activeBtn.data('responded') === 'true';
+
+            if (isResponded) {
+                removeResponse(vacancyId);
+            } else {
+                $('#modalVacancyId').val(vacancyId);
+                $('#resumeSelect').val('');
+                responseModal.show();
+            }
+        });
+
+        $('#btnSubmitResponse').on('click', function () {
+            let vacancyId = $('#modalVacancyId').val();
+            let resumeId = $('#resumeSelect').val();
+
+            if (!resumeId) {
+                alert('Пожалуйста, выберите резюме!');
+                return;
+            }
+
+            let token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Response/Create',
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: { vacancyId: vacancyId, resumeId: resumeId },
+                success: function () {
+                    responseModal.hide();
+                    activeBtn.removeClass('btn-outline-primary').addClass('btn-outline-secondary');
+                    activeBtn.text('Убрать отклик');
+                    activeBtn.data('responded', true);
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || 'Ошибка при создании отклика.');
+                }
+            });
+        });
+
+        function removeResponse(vacancyId) {
+            let token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Response/Remove',
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: { vacancyId: vacancyId },
+                success: function () {
+                    activeBtn.removeClass('btn-outline-secondary').addClass('btn-outline-primary');
+                    activeBtn.text('Откликнуться');
+                    activeBtn.data('responded', false);
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || 'Ошибка при удалении отклика.');
+                }
+            });
+        }
+    });
+</script>
+}
+}

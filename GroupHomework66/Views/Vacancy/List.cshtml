@@ -15,17 +15,6 @@ var shortDescription = vacancy.Description.Length > 150
 
 <div class="card mb-3 shadow-sm">
     <div class="card-body">
-        <div class="d-flex justify-content-between">
-            <h4 class="card-title">@vacancy.Title</h4>
-            @if (vacancy.IsPublished)
-            {
-            <span class="badge bg-success align-self-start">Опубликована</span>
-            }
-            else
-            {
-            <span class="badge bg-secondary align-self-start">Не опубликована</span>
-            }
-        </div>
         <h6 class="card-subtitle mb-2 text-muted">
             @vacancy.Category.GetDisplayName() · @vacancy.Salary.ToString("N0") сом
         </h6>

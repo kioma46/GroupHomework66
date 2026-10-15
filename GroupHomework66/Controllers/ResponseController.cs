@@ -36,15 +36,18 @@ public class ResponseController : Controller
 
         var ownsResume = await _context.Resumes.AnyAsync(r => r.Id == resumeId && r.UserId == userId);
         if (!ownsResume)
-        {
             return BadRequest("Резюме не найдено или не принадлежит вам.");
-        }
 
-        bool responseExists = await _context.Responses.AnyAsync(r => r.ResumeId == resumeId && r.VacancyId == vacancyId);
-        
+        var userResumeIds = await _context.Resumes
+            .Where(r => r.UserId == userId)
+            .Select(r => r.Id)
+            .ToListAsync();
+
+        bool responseExists = await _context.Responses
+            .AnyAsync(r => r.VacancyId == vacancyId && userResumeIds.Contains(r.ResumeId));
+    
         if (responseExists)
-            return BadRequest("Отклик уже существует.");
-        
+            return BadRequest("Вы уже откликнулись на эту вакансию.");
 
         var response = new Response
         {
@@ -65,12 +68,23 @@ public class ResponseController : Controller
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+        var userResumeIds = await _context.Resumes
+            .Where(r => r.UserId == userId)
+            .Select(r => r.Id)
+            .ToListAsync();
+
+        if (!userResumeIds.Any())
+        {
+            return NotFound("У вас нет резюме.");
+        }
+
         var response = await _context.Responses
-            .FirstOrDefaultAsync(r => r.VacancyId == vacancyId && r.Resume!.UserId == userId);
+            .FirstOrDefaultAsync(r => r.VacancyId == vacancyId && userResumeIds.Contains(r.ResumeId));
 
         if (response == null)
+        {
             return NotFound("Отклик не найден.");
-        
+        }
 
         _context.Responses.Remove(response);
         await _context.SaveChangesAsync();
