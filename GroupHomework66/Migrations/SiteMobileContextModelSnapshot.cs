@@ -268,6 +268,9 @@ namespace GroupHomework66.Migrations
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsRespondedByTheCurrentUser")
+                        .HasColumnType("boolean");
+
                     b.Property<decimal>("Salary")
                         .HasColumnType("numeric");
 
@@ -484,7 +487,7 @@ namespace GroupHomework66.Migrations
                         .IsRequired();
 
                     b.HasOne("GroupHomework66.Models.Vacancy", "Vacancy")
-                        .WithMany()
+                        .WithMany("Responses")
                         .HasForeignKey("VacancyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -590,6 +593,11 @@ namespace GroupHomework66.Migrations
             modelBuilder.Entity("GroupHomework66.Models.User", b =>
                 {
                     b.Navigation("Resumes");
+                });
+
+            modelBuilder.Entity("GroupHomework66.Models.Vacancy", b =>
+                {
+                    b.Navigation("Responses");
                 });
 #pragma warning restore 612, 618
         }

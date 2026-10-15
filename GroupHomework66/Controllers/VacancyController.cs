@@ -3,11 +3,12 @@ using GroupHomework66.Models;
 using GroupHomework66.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace GroupHomework66.Controllers;
 
-[Authorize(Roles = "Company")]
+
 public class VacancyController : Controller
 {
     private readonly SiteMobileContext _context;
@@ -17,12 +18,14 @@ public class VacancyController : Controller
         _context = context;
     }
     
+    [Authorize(Roles = "Company")]
     public IActionResult MyVacancies()
     {
         return RedirectToAction("Index", "Company");
     }
 
     [HttpGet]
+    [Authorize(Roles = "Company")]
     public IActionResult Create()
     {
         return View(new CreateVacancyViewModel());
@@ -30,6 +33,7 @@ public class VacancyController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> Create(CreateVacancyViewModel model)
     {
         if (!ModelState.IsValid)
@@ -74,6 +78,7 @@ public class VacancyController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> Edit(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -100,6 +105,7 @@ public class VacancyController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> Edit(int id, CreateVacancyViewModel model)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -130,6 +136,7 @@ public class VacancyController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> Refresh(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -148,6 +155,7 @@ public class VacancyController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Company")]
     public async Task<IActionResult> TogglePublish(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -162,5 +170,21 @@ public class VacancyController : Controller
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(MyVacancies));
+    }
+
+    [HttpGet]
+    [Authorize(Roles = "Applicant")]
+    public async Task<IActionResult> List()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var vacancies = await _context.Vacancies.ToListAsync();
+
+        ViewBag.UserResumes = await _context.Resumes
+            .Where(r => r.UserId == userId)
+            .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Title })
+            .ToListAsync();
+
+        return View(vacancies);
     }
 }

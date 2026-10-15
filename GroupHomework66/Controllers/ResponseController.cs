@@ -1,4 +1,5 @@
-﻿using GroupHomework66.Models;
+﻿using System.Security.Claims;
+using GroupHomework66.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -29,45 +30,52 @@ public class ResponseController : Controller
     
     [HttpPost]
     [Authorize(Roles = "Applicant")]
-    public async Task<IActionResult> CreateResponseAjax(int? resumeId, int? vacancyId)
+    public async Task<IActionResult> Create(int vacancyId, int resumeId)
     {
-        if (resumeId != null && vacancyId != null)
-        {
-            bool responseExists = await _context.Responses.AnyAsync(r => r.ResumeId == resumeId && r.VacancyId == vacancyId);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            if (!responseExists)
-            {
-                Models.Response response = new Response()
-                {
-                    ResumeId = resumeId.Value,
-                    VacancyId = vacancyId.Value
-                };
-                await _context.Responses.AddAsync(response);
-                await _context.SaveChangesAsync();
-                return Ok();
-            }
-            return BadRequest("Отклик уже существует");
+        var ownsResume = await _context.Resumes.AnyAsync(r => r.Id == resumeId && r.UserId == userId);
+        if (!ownsResume)
+        {
+            return BadRequest("Резюме не найдено или не принадлежит вам.");
         }
-        return NotFound();
+
+        bool responseExists = await _context.Responses.AnyAsync(r => r.ResumeId == resumeId && r.VacancyId == vacancyId);
+        
+        if (responseExists)
+            return BadRequest("Отклик уже существует.");
+        
+
+        var response = new Response
+        {
+            VacancyId = vacancyId,
+            ResumeId = resumeId,
+            ResponseDate = DateTime.UtcNow
+        };
+
+        await _context.Responses.AddAsync(response);
+        await _context.SaveChangesAsync();
+
+        return Ok();
     }
 
     [HttpPost]
     [Authorize(Roles = "Applicant")]
-    public async Task<IActionResult> RemoveResponseAjax(int? resumeId, int? vacancyId)
+    public async Task<IActionResult> Remove(int vacancyId)
     {
-        if (resumeId != null && vacancyId != null)
-        {
-            Response? response = await _context.Responses.FirstOrDefaultAsync(r => r.ResumeId == resumeId && r.VacancyId == vacancyId);
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            if (response != null)
-            {
-                _context.Responses.Remove(response);
-                await _context.SaveChangesAsync();
-                return Ok();
-            }
-            return BadRequest("Отклика не существует");
-        }
-        return NotFound();
+        var response = await _context.Responses
+            .FirstOrDefaultAsync(r => r.VacancyId == vacancyId && r.Resume!.UserId == userId);
+
+        if (response == null)
+            return NotFound("Отклик не найден.");
+        
+
+        _context.Responses.Remove(response);
+        await _context.SaveChangesAsync();
+
+        return Ok();
     }
 
     [HttpPost]

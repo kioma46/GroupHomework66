@@ -1,0 +1,146 @@
+﻿@model List<GroupHomework66.Models.Vacancy>
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@if (Model.Count <= 0)
+{
+<p>No vacancies yet</p>
+}
+else
+{
+foreach (var vacancy in Model)
+{
+var shortDescription = vacancy.Description.Length > 150
+? vacancy.Description.Substring(0, 150) + "..."
+: vacancy.Description;
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between">
+            <h4 class="card-title">@vacancy.Title</h4>
+            @if (vacancy.IsPublished)
+            {
+            <span class="badge bg-success align-self-start">Опубликована</span>
+            }
+            else
+            {
+            <span class="badge bg-secondary align-self-start">Не опубликована</span>
+            }
+        </div>
+        <h6 class="card-subtitle mb-2 text-muted">
+            @vacancy.Category.GetDisplayName() · @vacancy.Salary.ToString("N0") сом
+        </h6>
+        <p class="card-text">@shortDescription</p>
+        <p class="text-muted small mb-3">
+            Опыт: от @vacancy.ExperienceFrom до @vacancy.ExperienceTo лет ·
+            Обновлено: @vacancy.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+        </p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-outline-primary btn-sm" asp-controller="Vacancy" asp-action="Details" asp-route-id="@vacancy.Id">Подробнее</a>
+
+            <button class="btn btn-sm @(vacancy.IsRespondedByTheCurrentUser ? "btn-outline-secondary" : "btn-outline-primary") button-response-toggle"
+                    type="button"
+                    data-id="@vacancy.Id"
+                    data-responded="@vacancy.IsRespondedByTheCurrentUser.ToString().ToLower()">
+                @(vacancy.IsRespondedByTheCurrentUser ? "Убрать отклик" : "Откликнуться")
+            </button>
+        </div>
+    </div>
+</div>
+}
+}
+
+<!-- Модальное окно для выбора резюме -->
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">Выберите резюме для отклика</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modalVacancyId" />
+                <div class="mb-3">
+                    <label for="resumeSelect" class="form-label">Ваши резюме</label>
+                    <select class="form-select" id="resumeSelect" asp-items="ViewBag.UserResumes">
+                        <option value="">-- Выберите резюме --</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitResponse">Отправить отклик</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+<script>
+    $(document).ready(function () {
+        let activeBtn = null;
+        let responseModal = new bootstrap.Modal(document.getElementById('responseModal'));
+
+        $(document).on('click', '.button-response-toggle', function () {
+            activeBtn = $(this);
+            let vacancyId = activeBtn.data('id');
+            let isResponded = activeBtn.data('responded') === true || activeBtn.data('responded') === 'true';
+
+            if (isResponded) {
+                removeResponse(vacancyId);
+            } else {
+                $('#modalVacancyId').val(vacancyId);
+                $('#resumeSelect').val('');
+                responseModal.show();
+            }
+        });
+
+        $('#btnSubmitResponse').on('click', function () {
+            let vacancyId = $('#modalVacancyId').val();
+            let resumeId = $('#resumeSelect').val();
+
+            if (!resumeId) {
+                alert('Пожалуйста, выберите резюме!');
+                return;
+            }
+
+            let token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Response/Create',
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: { vacancyId: vacancyId, resumeId: resumeId },
+                success: function () {
+                    responseModal.hide();
+                    activeBtn.removeClass('btn-outline-primary').addClass('btn-outline-secondary');
+                    activeBtn.text('Убрать отклик');
+                    activeBtn.data('responded', true);
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || 'Ошибка при создании отклика.');
+                }
+            });
+        });
+
+        function removeResponse(vacancyId) {
+            let token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Response/Remove',
+                type: 'POST',
+                headers: { 'RequestVerificationToken': token },
+                data: { vacancyId: vacancyId },
+                success: function () {
+                    activeBtn.removeClass('btn-outline-secondary').addClass('btn-outline-primary');
+                    activeBtn.text('Откликнуться');
+                    activeBtn.data('responded', false);
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || 'Ошибка при удалении отклика.');
+                }
+            });
+        }
+    });
+</script>
+}

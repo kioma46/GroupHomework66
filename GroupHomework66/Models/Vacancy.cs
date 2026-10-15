@@ -50,7 +50,7 @@ namespace GroupHomework66.Models
         [Display(Name = "Опубликовано")]
         public bool IsPublished { get; set; } = true;
 
-        // public ICollection<Response> Responses { get; set; } = new List<Response>();
+        public List<Response> Responses { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext context)
         {
@@ -59,5 +59,7 @@ namespace GroupHomework66.Models
                     "«Опыт до» не может быть меньше «Опыт от»",
                     new[] { nameof(ExperienceTo) });
         }
+        
+        public bool IsRespondedByTheCurrentUser { get; set; } = false;
     }
 }
