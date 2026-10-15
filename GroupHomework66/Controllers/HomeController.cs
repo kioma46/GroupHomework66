@@ -10,6 +10,11 @@ public class HomeController : Controller
     [Authorize]
     public IActionResult Index()
     {
+        if (User.IsInRole("Company"))
+            return RedirectToAction("Index", "Company");
+
+        if (User.IsInRole("Applicant"))
+            return RedirectToAction("List", "Vacancy");
         return View();
     }
 
