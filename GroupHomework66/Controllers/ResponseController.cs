@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using GroupHomework66.ViewModels;
 
 namespace GroupHomework66.Controllers;
 
@@ -142,6 +143,65 @@ public class ResponseController : Controller
     }
     
     
+    [Authorize(Roles = "Company")]
+    public async Task<IActionResult> CompanyResponses()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var vacancies = await _context.Vacancies
+            .Where(v => v.EmployerId == userId)
+            .OrderByDescending(v => v.UpdatedDate)
+            .ToListAsync();
+
+        var responses = await _context.Responses
+            .Where(r => r.Vacancy!.EmployerId == userId)
+            .Include(r => r.Resume).ThenInclude(r => r!.User)
+            .OrderByDescending(r => r.ResponseDate)
+            .ToListAsync();
+
+        var model = new CompanyResponsesViewModel
+        {
+            Vacancies = vacancies.Select(v => new VacancyResponsesGroup
+            {
+                VacancyId = v.Id,
+                VacancyTitle = v.Title,
+                IsPublished = v.IsPublished,
+                Responses = responses
+                    .Where(r => r.VacancyId == v.Id)
+                    .Select(r => new ResponseItem
+                    {
+                        ResponseId = r.Id,
+                        ResumeTitle = r.Resume?.Title ?? "Резюме удалено",
+                        ApplicantName = r.Resume?.User?.UserName ?? "Неизвестно",
+                        ResponseDate = r.ResponseDate
+                    })
+                    .ToList()
+            }).ToList()
+        };
+
+        return View(model);
+    }
     
+    [Authorize(Roles = "Company")]
+    public async Task<IActionResult> ViewResume(int id)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var response = await _context.Responses
+            .Include(r => r.Vacancy)
+            .Include(r => r.Resume).ThenInclude(r => r!.User)
+            .Include(r => r.Resume).ThenInclude(r => r!.WorkExperiences)
+            .Include(r => r.Resume).ThenInclude(r => r!.Educations)
+            .Include(r => r.Resume).ThenInclude(r => r!.Courses)
+            .FirstOrDefaultAsync(r => r.Id == id && r.Vacancy!.EmployerId == userId);
+
+        if (response == null || response.Resume == null)
+        {
+            return NotFound();
+        }
+
+        return View(response);
+    }
+        
     
 }

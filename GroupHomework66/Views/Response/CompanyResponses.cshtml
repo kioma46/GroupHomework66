@@ -1,0 +1,55 @@
+﻿@model GroupHomework66.ViewModels.CompanyResponsesViewModel
+
+<h1 class="mb-4">Отклики на вакансии</h1>
+
+@if (!Model.Vacancies.Any())
+{
+    <div class="alert alert-info">У вас пока нет вакансий.</div>
+}
+else
+{
+    foreach (var vacancy in Model.Vacancies)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@vacancy.VacancyTitle</h5>
+                <span class="badge bg-primary">Откликов: @vacancy.Responses.Count</span>
+            </div>
+            <div class="card-body">
+                @if (!vacancy.Responses.Any())
+                {
+                    <p class="text-muted mb-0">Откликов пока нет.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Соискатель</th>
+                                <th>Резюме</th>
+                                <th>Дата отклика</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var response in vacancy.Responses)
+                            {
+                                <tr>
+                                    <td>@response.ApplicantName</td>
+                                    <td>@response.ResumeTitle</td>
+                                    <td>@response.ResponseDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-primary btn-sm"
+                                           asp-action="ViewResume" asp-route-id="@response.ResponseId">Открыть резюме</a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}

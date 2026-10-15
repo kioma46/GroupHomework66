@@ -1,0 +1,82 @@
+﻿@model GroupHomework66.Models.Response
+
+@{
+    var resume = Model.Resume!;
+}
+
+<a class="btn btn-link ps-0 mb-3" asp-action="CompanyResponses">← К откликам</a>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <p class="text-muted mb-1">Отклик на вакансию: <strong>@Model.Vacancy?.Title</strong></p>
+        <h1 class="card-title">@resume.Title</h1>
+        <h5 class="text-muted mb-3">
+            @resume.User.UserName · @resume.Category.GetDisplayName() · ожидаемая зарплата @resume.ExpectedSalary.ToString("N0") сом
+        </h5>
+
+        <h5>Контакты</h5>
+        <ul class="list-unstyled">
+            @if (!string.IsNullOrWhiteSpace(resume.Telegram)) { <li>Telegram: @resume.Telegram</li> }
+            @if (!string.IsNullOrWhiteSpace(resume.Email)) { <li>Email: @resume.Email</li> }
+            @if (!string.IsNullOrWhiteSpace(resume.PhoneNumber)) { <li>Телефон: @resume.PhoneNumber</li> }
+            @if (!string.IsNullOrWhiteSpace(resume.Facebook)) { <li>Facebook: @resume.Facebook</li> }
+            @if (!string.IsNullOrWhiteSpace(resume.LinkedIn)) { <li>LinkedIn: @resume.LinkedIn</li> }
+        </ul>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5>Опыт работы</h5>
+        @if (!resume.WorkExperiences.Any())
+        {
+            <p class="text-muted mb-0">Не указан.</p>
+        }
+        @foreach (var w in resume.WorkExperiences.OrderByDescending(x => x.StartDate))
+        {
+            <div class="mb-3">
+                <strong>@w.Position</strong>, @w.CompanyName
+                <div class="text-muted small">
+                    @w.StartDate.ToString("MM.yyyy") — @(w.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+                </div>
+                <div style="white-space: pre-line;">@w.Description</div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <h5>Образование</h5>
+        @if (!resume.Educations.Any())
+        {
+            <p class="text-muted mb-0">Не указано.</p>
+        }
+        @foreach (var e in resume.Educations.OrderByDescending(x => x.StartDate))
+        {
+            <div class="mb-3">
+                <strong>@e.Institution</strong>, @e.Specialty
+                <div class="text-muted small">
+                    @e.StartDate.ToString("MM.yyyy") — @(e.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+                </div>
+                <div style="white-space: pre-line;">@e.Description</div>
+            </div>
+        }
+
+        <h5 class="mt-4">Курсы</h5>
+        @if (!resume.Courses.Any())
+        {
+            <p class="text-muted mb-0">Не указаны.</p>
+        }
+        @foreach (var c in resume.Courses.OrderByDescending(x => x.StartDate))
+        {
+            <div class="mb-3">
+                <strong>@c.Name</strong>, @c.Organization
+                <div class="text-muted small">
+                    @c.StartDate.ToString("MM.yyyy") — @(c.EndDate?.ToString("MM.yyyy") ?? "по настоящее время")
+                </div>
+                <div style="white-space: pre-line;">@c.Description</div>
+            </div>
+        }
+    </div>
+</div>

@@ -60,8 +60,8 @@
                         {
                             @if (User.IsInRole("Company"))
                             {
-                                <li class="nav-item"><!-- тут нужно сделать ссылку на список откликов на вакансии -->
-                                    <a class="nav-link text-dark">Отклики на вакансии</a>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Response" asp-action="CompanyResponses">Отклики на вакансии</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="Company" asp-action="Index">Профиль</a>
