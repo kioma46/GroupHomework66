@@ -1,14 +1,50 @@
 ﻿@model List<GroupHomework66.Models.Vacancy>
 @using System.Security.Claims
+@using GroupHomework66.Enums
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Список вакансий";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<h1 class="mb-4">Список вакансий</h1>
+<form method="get" asp-action="List" class="card card-body bg-light mb-4 shadow-sm">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control" placeholder="Поиск по названию..." />
+        </div>
+        <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">Все категории</option>
+                @foreach (VacancyCategory category in Enum.GetValues(typeof(VacancyCategory)))
+                {
+                    <option value="@category" selected="@(ViewBag.CurrentCategory?.ToString() == category.ToString())">
+                        @category.GetDisplayName()
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="sortBySalary" class="form-select">
+                <option value="">Сортировка по зарплате</option>
+                <option value="asc" selected="@(ViewBag.CurrentSort == "asc")">По возрастанию</option>
+                <option value="desc" selected="@(ViewBag.CurrentSort == "desc")">По убыванию</option>
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Найти</button>
+            <a asp-action="List" class="btn btn-outline-secondary">Сброс</a>
+        </div>
+    </div>
+</form>
 
 @if (Model.Count <= 0)
 {
-<p>No vacancies yet</p>
+    <p class="text-muted">Вакансии не найдены</p>
 }
 else
 {
-    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     foreach (var vacancy in Model)
     {
         var shortDescription = vacancy.Description.Length > 150
@@ -26,7 +62,7 @@ else
                     Опыт: от @vacancy.ExperienceFrom до @vacancy.ExperienceTo лет ·
                     Обновлено: @vacancy.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
                 </p>
-                <div class="d-flex gap-2 flex-wrap">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
                     <a class="btn btn-outline-primary btn-sm" asp-controller="Vacancy" asp-action="Details" asp-route-id="@vacancy.Id">Подробнее</a>
 
                     <button class="btn btn-sm @(vacancy.IsRespondedByTheCurrentUser ? "btn-outline-secondary" : "btn-outline-primary") button-response-toggle"
@@ -35,19 +71,39 @@ else
                             data-responded="@vacancy.IsRespondedByTheCurrentUser.ToString().ToLower()">
                         @(vacancy.IsRespondedByTheCurrentUser ? "Убрать отклик" : "Откликнуться")
                     </button>
+
+                    @if (vacancy.IsRespondedByTheCurrentUser)
+                    {
+                        <a class="btn btn-sm btn-success button-chat"
+                           asp-controller="Message"
+                           asp-action="Index"
+                           asp-route-candidateId="@currentUserId"
+                           asp-route-employerId="@vacancy.EmployerId">
+                            Чат с работодателем
+                        </a>
+                    }
                 </div>
-                @if (vacancy.IsRespondedByTheCurrentUser)
-                {
-                    <a class="btn btn-sm btn-success button-chat"
-                       asp-controller="Message"
-                       asp-action="Index"
-                       asp-route-candidateId="@currentUserId"
-                       asp-route-employerId="@vacancy.EmployerId">
-                        Чат с работодателем
-                    </a>
-                }
             </div>
         </div>
+    }
+
+    @if (ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                        <a class="page-link" 
+                           asp-action="List" 
+                           asp-route-page="@i" 
+                           asp-route-search="@ViewBag.CurrentSearch" 
+                           asp-route-category="@ViewBag.CurrentCategory" 
+                           asp-route-sortBySalary="@ViewBag.CurrentSort">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     }
 }
 
@@ -115,9 +171,6 @@ else
                 data: { vacancyId: vacancyId, resumeId: resumeId },
                 success: function () {
                     responseModal.hide();
-                    activeBtn.removeClass('btn-outline-primary').addClass('btn-outline-secondary');
-                    activeBtn.text('Убрать отклик');
-                    activeBtn.data('responded', true);
                     location.reload();
                 },
                 error: function (xhr) {
@@ -135,9 +188,6 @@ else
                 headers: { 'RequestVerificationToken': token },
                 data: { vacancyId: vacancyId },
                 success: function () {
-                    activeBtn.removeClass('btn-outline-secondary').addClass('btn-outline-primary');
-                    activeBtn.text('Откликнуться');
-                    activeBtn.data('responded', false);
                     location.reload();
                 },
                 error: function (xhr) {

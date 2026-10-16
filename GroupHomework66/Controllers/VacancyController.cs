@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using GroupHomework66.Enums;
 using GroupHomework66.Models;
 using GroupHomework66.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -201,35 +202,42 @@ public class VacancyController : Controller
     }
 
     [HttpGet]
-    [Authorize(Roles = "Applicant")]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List(string? search, VacancyCategory? category, string? sortBySalary, int page = 1)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        int pageSize = 20;
 
-        var vacancies = await _context.Vacancies
+        var query = _context.Vacancies
             .Where(v => v.IsPublished)
-            .OrderByDescending(v => v.UpdatedDate)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(v => v.Title.ToLower().Contains(search.ToLower()));
+
+        if (category.HasValue)
+            query = query.Where(v => v.Category == category.Value);
+
+        if (sortBySalary == "asc")
+            query = query.OrderBy(v => v.Salary);
+        
+        else if (sortBySalary == "desc")
+            query = query.OrderByDescending(v => v.Salary);
+        
+        else
+            query = query.OrderByDescending(v => v.UpdatedDate);
+
+        int totalItems = await query.CountAsync();
+        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+        var vacancies = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
 
-        var userResumeIds = await _context.Resumes
-            .Where(r => r.UserId == userId)
-            .Select(r => r.Id)
-            .ToListAsync();
-
-        var respondedVacancyIds = await _context.Responses
-            .Where(r => userResumeIds.Contains(r.ResumeId))
-            .Select(r => r.VacancyId)
-            .ToListAsync();
-
-        foreach (var vacancy in vacancies)
-        {
-            vacancy.IsRespondedByTheCurrentUser = respondedVacancyIds.Contains(vacancy.Id);
-        }
-
-        ViewBag.UserResumes = await _context.Resumes
-            .Where(r => r.UserId == userId)
-            .Select(r => new SelectListItem { Value = r.Id.ToString(), Text = r.Title })
-            .ToListAsync();
+        ViewBag.CurrentSearch = search;
+        ViewBag.CurrentCategory = category;
+        ViewBag.CurrentSort = sortBySalary;
+        ViewBag.CurrentPage = page;
+        ViewBag.TotalPages = totalPages;
 
         return View(vacancies);
     }
