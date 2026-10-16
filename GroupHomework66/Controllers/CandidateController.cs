@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using GroupHomework66.Models;
+using GroupHomework66.Services;
 using GroupHomework66.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,11 +14,13 @@ public class CandidateController : Controller
 {
     private readonly SiteMobileContext _context;
     private readonly UserManager<User> _userManager;
+    private readonly ResumePdfService _resumePdfService;
 
-    public CandidateController(SiteMobileContext context, UserManager<User> userManager)
+    public CandidateController(SiteMobileContext context, UserManager<User> userManager, ResumePdfService resumePdfService)
     {
         _context = context;
         _userManager = userManager;
+        _resumePdfService = resumePdfService;
     }
 
     public async Task<IActionResult> Index()
@@ -146,6 +149,38 @@ public class CandidateController : Controller
         }
 
         return View(resume);
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> DownloadPdf(int id)
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdValue, out var userId))
+        {
+            return Challenge();
+        }
+
+        var resume = await _context.Resumes
+            .AsNoTracking()
+            .Include(r => r.User)
+            .Include(r => r.WorkExperiences)
+            .Include(r => r.Educations)
+            .Include(r => r.Courses)
+            .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+
+        if (resume == null)
+        {
+            return NotFound();
+        }
+
+        var pdfBytes = _resumePdfService.Generate(resume);
+        var safeTitle = new string(resume.Title.Select(c => char.IsLetterOrDigit(c) || c is '-' or '_' ? c : '_').ToArray()).Trim('_');
+        if (string.IsNullOrWhiteSpace(safeTitle))
+        {
+            safeTitle = $"Resume_{resume.Id}";
+        }
+
+        return File(pdfBytes, "application/pdf", $"{safeTitle}.pdf");
     }
     
     [HttpGet]

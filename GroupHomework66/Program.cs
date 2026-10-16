@@ -1,6 +1,8 @@
 using GroupHomework66.Models;
+using GroupHomework66.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
 namespace GroupHomework66;
 
@@ -10,8 +12,12 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
         // Add services to the container.
         builder.Services.AddControllersWithViews();
+
+        builder.Services.AddScoped<ResumePdfService>();
         
         string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
         builder.Services.AddDbContext<SiteMobileContext>(options => options.UseNpgsql(connection))
