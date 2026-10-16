@@ -1,4 +1,5 @@
-﻿@model GroupHomework66.Models.Vacancy
+﻿@using System.Security.Claims
+@model GroupHomework66.Models.Vacancy
 
 @if (User.IsInRole("Company"))
 {
@@ -39,6 +40,8 @@
         
         @if (User.IsInRole("Applicant"))
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             <div class="d-flex gap-2 flex-wrap">
                 <button class="btn btn-sm @(Model.IsRespondedByTheCurrentUser ? "btn-outline-secondary" : "btn-outline-primary") button-response-toggle"
                         type="button"
@@ -47,6 +50,17 @@
                     @(Model.IsRespondedByTheCurrentUser ? "Убрать отклик" : "Откликнуться")
                 </button>
             </div>
+            
+            @if (Model.IsRespondedByTheCurrentUser)
+            {
+                <a class="btn btn-sm btn-success button-chat"
+                   asp-controller="Message"
+                   asp-action="Index"
+                   asp-route-candidateId="@currentUserId"
+                   asp-route-employerId="@Model.EmployerId">
+                    Чат с работодателем
+                </a>
+            }
         }
     </div>
 </div>
@@ -120,6 +134,7 @@
                     activeBtn.removeClass('btn-outline-primary').addClass('btn-outline-secondary');
                     activeBtn.text('Убрать отклик');
                     activeBtn.data('responded', true);
+                    location.reload();
                 },
                 error: function (xhr) {
                     alert(xhr.responseText || 'Ошибка при создании отклика.');
@@ -139,6 +154,7 @@
                     activeBtn.removeClass('btn-outline-secondary').addClass('btn-outline-primary');
                     activeBtn.text('Откликнуться');
                     activeBtn.data('responded', false);
+                    location.reload();
                 },
                 error: function (xhr) {
                     alert(xhr.responseText || 'Ошибка при удалении отклика.');

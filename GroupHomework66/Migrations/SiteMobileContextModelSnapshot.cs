@@ -92,6 +92,36 @@ namespace GroupHomework66.Migrations
                     b.ToTable("Educations");
                 });
 
+            modelBuilder.Entity("GroupHomework66.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ReceiverUserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SenderUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReceiverUserId");
+
+                    b.HasIndex("SenderUserId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("GroupHomework66.Models.Response", b =>
                 {
                     b.Property<int>("Id")
@@ -476,6 +506,25 @@ namespace GroupHomework66.Migrations
                         .IsRequired();
 
                     b.Navigation("Resume");
+                });
+
+            modelBuilder.Entity("GroupHomework66.Models.Message", b =>
+                {
+                    b.HasOne("GroupHomework66.Models.User", "ReceiverUser")
+                        .WithMany()
+                        .HasForeignKey("ReceiverUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("GroupHomework66.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("SenderUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ReceiverUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GroupHomework66.Models.Response", b =>
