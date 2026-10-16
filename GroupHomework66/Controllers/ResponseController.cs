@@ -203,5 +203,19 @@ public class ResponseController : Controller
         return View(response);
     }
         
-    
+    [Authorize(Roles = "Applicant")]
+    public async Task<IActionResult> ApplicantResponses()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var responses = await _context.Responses
+            .Where(r => r.Resume != null && r.Resume.UserId == userId)
+            .Include(r => r.Resume)
+            .Include(r => r.Vacancy)
+            .ThenInclude(v => v!.Employer)
+            .OrderByDescending(r => r.ResponseDate)
+            .ToListAsync();
+
+        return View(responses);
+    }
 }
