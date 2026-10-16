@@ -171,6 +171,7 @@ public class ResponseController : Controller
                     .Select(r => new ResponseItem
                     {
                         ResponseId = r.Id,
+                        ApplicantId = r.Resume?.UserId ?? 0,
                         ResumeTitle = r.Resume?.Title ?? "Резюме удалено",
                         ApplicantName = r.Resume?.User?.UserName ?? "Неизвестно",
                         ResponseDate = r.ResponseDate
@@ -196,9 +197,7 @@ public class ResponseController : Controller
             .FirstOrDefaultAsync(r => r.Id == id && r.Vacancy!.EmployerId == userId);
 
         if (response == null || response.Resume == null)
-        {
             return NotFound();
-        }
 
         return View(response);
     }

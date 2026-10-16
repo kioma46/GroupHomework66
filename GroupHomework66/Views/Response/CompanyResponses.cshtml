@@ -1,4 +1,9 @@
-﻿@model GroupHomework66.ViewModels.CompanyResponsesViewModel
+﻿@using System.Security.Claims
+@model GroupHomework66.ViewModels.CompanyResponsesViewModel
+
+@{
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
 
 <h1 class="mb-4">Отклики на вакансии</h1>
 
@@ -40,8 +45,16 @@ else
                                     <td>@response.ResumeTitle</td>
                                     <td>@response.ResponseDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                                     <td class="text-end">
-                                        <a class="btn btn-outline-primary btn-sm"
+                                        <a class="btn btn-outline-primary btn-sm me-1"
                                            asp-action="ViewResume" asp-route-id="@response.ResponseId">Открыть резюме</a>
+                                        
+                                        <a class="btn btn-outline-success btn-sm"
+                                           asp-controller="Message"
+                                           asp-action="Index"
+                                           asp-route-candidateId="@response.ApplicantId"
+                                           asp-route-employerId="@currentUserId">
+                                            Чат с соискателем
+                                        </a>
                                     </td>
                                 </tr>
                             }

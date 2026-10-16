@@ -85,27 +85,24 @@ public class MessageController : Controller
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> SendMessageAjax(int employerId, string messageText, int? candidateId)
+    public async Task<IActionResult> SendMessageAjax(int candidateId, int employerId, string messageText)
     {
         if (string.IsNullOrWhiteSpace(messageText))
             return BadRequest("Сообщение не может быть пустым.");
         
         var currentUserId = CurrentUserId;
 
-        if (currentUserId == employerId)
+        if (currentUserId != candidateId && currentUserId != employerId)
+            return Forbid();
+
+        int receiverId = (currentUserId == candidateId) ? employerId : candidateId;
+
+        if (currentUserId == receiverId)
             return BadRequest("Нельзя отправить сообщение самому себе.");
 
-        var r = await _context.Responses
-            .Include(r => r.Resume).Include(r => r.Vacancy).FirstOrDefaultAsync(r => 
-                (r.Resume != null && r.Resume.UserId == currentUserId && r.Vacancy != null && r.Vacancy.EmployerId == employerId) ||
-                (r.Resume != null && r.Resume.UserId == employerId && r.Vacancy != null && r.Vacancy.EmployerId == currentUserId)
-            );
-        
         bool hasResponse = await _context.Responses
-            .Include(r => r.Resume).Include(r => r.Vacancy).AnyAsync(r => 
-                (r.Resume != null && r.Resume.UserId == currentUserId && r.Vacancy != null && r.Vacancy.EmployerId == employerId) ||
-                (r.Resume != null && r.Resume.UserId == employerId && r.Vacancy != null && r.Vacancy.EmployerId == currentUserId)
-            );
+            .AnyAsync(r => r.Resume != null && r.Resume.UserId == candidateId && 
+                           r.Vacancy != null && r.Vacancy.EmployerId == employerId);
 
         if (!hasResponse)
             return BadRequest("Отправка сообщений возможна только при наличии отклика на вакансию.");
@@ -113,7 +110,7 @@ public class MessageController : Controller
         var message = new Message
         {
             SenderUserId = currentUserId,
-            ReceiverUserId = employerId,
+            ReceiverUserId = receiverId,
             MessageText = messageText.Trim(),
             CreatedAt = DateTime.UtcNow
         };

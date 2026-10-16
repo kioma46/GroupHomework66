@@ -16,6 +16,7 @@ public class VacancyResponsesGroup
 public class ResponseItem
 {
     public int ResponseId { get; set; }
+    public int ApplicantId { get; set; }
     public string ResumeTitle { get; set; } = string.Empty;
     public string ApplicantName { get; set; } = string.Empty;
     public DateTime ResponseDate { get; set; }

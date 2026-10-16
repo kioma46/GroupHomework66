@@ -51,16 +51,16 @@
 
                         data.forEach(element => {
                             let formattedDate = new Date(element.createdAt).toLocaleString();
-                            
+
                             $container.append(`
-                                <div class="mb-2 p-2 border rounded bg-white shadow-sm">
-                                    <div class="d-flex justify-content-between text-muted small mb-1">
-                                        <span>Отправитель: ${element.senderUserName}</span>
-                                        <span>${formattedDate}</span>
-                                    </div>
-                                    <p class="mb-0 text-break">${element.messageText}</p>
-                                </div>
-                            `);
+        <div class="mb-2 p-2 border rounded bg-white shadow-sm">
+            <div class="d-flex justify-content-between text-muted small mb-1">
+                <span>${element.senderUserName}</span>
+                <span>${formattedDate}</span>
+            </div>
+            <p class="mb-0 text-break">${element.messageText}</p>
+        </div>
+    `);
                         });
 
                         $container.scrollTop($container[0].scrollHeight);
@@ -100,7 +100,7 @@
                     }
                 });
             });
-            
+
             loadMessages();
             setInterval(loadMessages, 5000);
         });
