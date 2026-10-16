@@ -171,6 +171,9 @@ else
                 data: { vacancyId: vacancyId, resumeId: resumeId },
                 success: function () {
                     responseModal.hide();
+                    activeBtn.removeClass('btn-outline-primary').addClass('btn-outline-secondary');
+                    activeBtn.text('Убрать отклик');
+                    activeBtn.data('responded', true);
                     location.reload();
                 },
                 error: function (xhr) {
@@ -188,6 +191,9 @@ else
                 headers: { 'RequestVerificationToken': token },
                 data: { vacancyId: vacancyId },
                 success: function () {
+                    activeBtn.removeClass('btn-outline-secondary').addClass('btn-outline-primary');
+                    activeBtn.text('Откликнуться');
+                    activeBtn.data('responded', false);
                     location.reload();
                 },
                 error: function (xhr) {
