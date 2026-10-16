@@ -45,6 +45,9 @@ else
                 <p class="card-text small text-muted mb-3">
                     Соискатель: @resume.User?.UserName · Обновлено: @resume.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
                 </p>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <a class="btn btn-outline-primary btn-sm" asp-controller="Candidate" asp-action="Details" asp-route-id="@resume.Id">Подробнее</a>
+                </div>
             </div>
         </div>
     }

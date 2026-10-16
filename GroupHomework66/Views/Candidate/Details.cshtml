@@ -17,15 +17,18 @@
                 <span class="badge bg-secondary"><i class="fa-solid fa-eye-slash me-1"></i>Скрыто</span>
             }
         </div>
-        <div class="d-flex flex-wrap gap-2 align-items-start">
-            <a asp-action="EditResume" asp-route-id="@Model.Id" class="btn btn-outline-primary"> <i class="fa-solid fa-pen me-1"></i> Редактировать</a>
-            <a asp-action="DownloadPdf" asp-route-id="@Model.Id" class="btn btn-danger">Скачать PDF</a>
-            <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Candidate", new { id = Model.Id })" />
-                <button type="submit" class="btn btn-outline-secondary">@(Model.IsPublished ? "Снять с публикации" : "Опубликовать")</button>
-            </form>
-        </div>
+        @if (User.IsInRole("Applicant"))
+        {
+            <div class="d-flex flex-wrap gap-2 align-items-start">
+                <a asp-action="EditResume" asp-route-id="@Model.Id" class="btn btn-outline-primary"> <i class="fa-solid fa-pen me-1"></i> Редактировать</a>
+                <a asp-action="DownloadPdf" asp-route-id="@Model.Id" class="btn btn-danger">Скачать PDF</a>
+                <form asp-action="Publish" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Url.Action("Details", "Candidate", new { id = Model.Id })" />
+                    <button type="submit" class="btn btn-outline-secondary">@(Model.IsPublished ? "Снять с публикации" : "Опубликовать")</button>
+                </form>
+            </div>
+        }
     </div>
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light py-3">
@@ -72,7 +75,11 @@
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h4 class="mb-0"><i class="fa-solid fa-briefcase me-2"></i>Опыт работы</h4>
-            <a asp-action="AddWorkExperience" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить опыт</a>
+            @if (User.IsInRole("Applicant"))
+            {
+                <a asp-action="AddWorkExperience" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить опыт</a>
+            }
+            
         </div>
         <div class="card-body">
             @if (!Model.WorkExperiences.Any())
@@ -93,6 +100,8 @@
                                         @experience.StartDate.ToString("MM.yyyy") - @(experience.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
                                     </div>
                                 </div>
+                                @if (User.IsInRole("Applicant"))
+                                {
                                 <div class="d-flex gap-2">
                                     <a asp-action="EditWorkExperience" asp-route-id="@experience.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
                                     <form asp-action="DeleteWorkExperience" asp-route-id="@experience.Id" method="post">
@@ -100,6 +109,8 @@
                                         <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить этот опыт работы?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
                                     </form>
                                 </div>
+                                }
+                                
                             </div>
                             @if (!string.IsNullOrWhiteSpace(experience.Description))
                             {
@@ -115,7 +126,10 @@
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h4 class="mb-0"><i class="fa-solid fa-graduation-cap me-2"></i>Образование</h4>
+            @if (User.IsInRole("Applicant"))
+            {
             <a asp-action="AddEducation" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить образование</a>
+            }
         </div>
         <div class="card-body">
             @if (!Model.Educations.Any())
@@ -136,13 +150,16 @@
                                         @education.StartDate.ToString("MM.yyyy") - @(education.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
                                     </div>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="EditEducation" asp-route-id="@education.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
-                                    <form asp-action="DeleteEducation" asp-route-id="@education.Id" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить эту запись об образовании?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
-                                    </form>
-                                </div>
+                                @if (User.IsInRole("Applicant"))
+                                {
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="EditEducation" asp-route-id="@education.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
+                                        <form asp-action="DeleteEducation" asp-route-id="@education.Id" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить эту запись об образовании?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
+                                        </form>
+                                    </div>
+                                }
                             </div>
                             @if (!string.IsNullOrWhiteSpace(education.Description))
                             {
@@ -158,7 +175,10 @@
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-light py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h4 class="mb-0"><i class="fa-solid fa-certificate me-2"></i>Курсы и повышение квалификации</h4>
-            <a asp-action="AddCourse" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить курс</a>
+            @if (User.IsInRole("Applicant"))
+            {
+                <a asp-action="AddCourse" asp-route-resumeId="@Model.Id" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus me-1"></i>Добавить курс</a>
+            }
         </div>
         <div class="card-body">
             @if (!Model.Courses.Any())
@@ -179,13 +199,16 @@
                                         @course.StartDate.ToString("MM.yyyy") - @(course.EndDate?.ToString("MM.yyyy") ?? "По настоящее время")
                                     </div>
                                 </div>
-                                <div class="d-flex gap-2">
-                                    <a asp-action="EditCourse" asp-route-id="@course.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
-                                    <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить этот курс?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
-                                    </form>
-                                </div>
+                                @if (User.IsInRole("Applicant"))
+                                {
+                                    <div class="d-flex gap-2">
+                                        <a asp-action="EditCourse" asp-route-id="@course.Id" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-pen me-1"></i>Редактировать</a>
+                                        <form asp-action="DeleteCourse" asp-route-id="@course.Id" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Удалить этот курс?');"><i class="fa-solid fa-trash me-1"></i>Удалить</button>
+                                        </form>
+                                    </div>
+                                }
                             </div>
                             @if (!string.IsNullOrWhiteSpace(course.Description))
                             {
@@ -198,7 +221,10 @@
             }
         </div>
     </div>
+    @if (User.IsInRole("Applicant"))
+    {
     <div class="d-flex flex-wrap gap-2 mb-3">
         <a asp-action="Index" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left me-1"></i>К моим резюме</a>
-    </div>
+    </div>       
+    }
 </div>

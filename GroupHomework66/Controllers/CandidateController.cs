@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GroupHomework66.Controllers;
 
-[Authorize(Roles = "Applicant")]
+
 public class CandidateController : Controller
 {
     private readonly SiteMobileContext _context;
@@ -23,6 +23,7 @@ public class CandidateController : Controller
         _resumePdfService = resumePdfService;
     }
 
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> Index()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -44,6 +45,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public IActionResult CreateResume()
     {
         return View();
@@ -51,6 +53,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> CreateResume(CreateResumeViewModel model)
     {
         if (!ModelState.IsValid)
@@ -80,6 +83,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditResume(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -106,6 +110,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditResume(int id, CreateResumeViewModel model)
     {
         if (!ModelState.IsValid)
@@ -142,16 +147,16 @@ public class CandidateController : Controller
             .Include(r => r.WorkExperiences)
             .Include(r => r.Courses)
             .Include(r => r.Educations)
-            .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+            .FirstOrDefaultAsync(r => r.Id == id);
+        
         if (resume == null)
-        {
             return NotFound();
-        }
 
         return View(resume);
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> DownloadPdf(int id)
     {
         var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -184,6 +189,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddWorkExperience(int resumeId)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -200,6 +206,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddWorkExperience(int resumeId, CreateWorkExperienceViewModel model)
     {
         if (!ModelState.IsValid)
@@ -232,6 +239,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditWorkExperience(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -259,6 +267,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditWorkExperience(int id, CreateWorkExperienceViewModel model)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -287,6 +296,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> DeleteWorkExperience(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -303,6 +313,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddCourse(int resumeId)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -319,6 +330,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddCourse(int resumeId, CreateCourseViewModel model)
     {
         if (!ModelState.IsValid)
@@ -351,6 +363,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditCourse(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -378,6 +391,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditCourse(int id, CreateCourseViewModel model)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -406,6 +420,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> DeleteCourse(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -422,6 +437,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddEducation(int resumeId)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -438,6 +454,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> AddEducation(int resumeId, CreateEducationViewModel model)
     {
         if (!ModelState.IsValid)
@@ -470,6 +487,7 @@ public class CandidateController : Controller
     }
     
     [HttpGet]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditEducation(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -496,6 +514,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditEducation(int id, CreateEducationViewModel model)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -524,6 +543,7 @@ public class CandidateController : Controller
     
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> DeleteEducation(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -541,6 +561,7 @@ public class CandidateController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> Publish(int id, string? returnUrl)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -561,6 +582,7 @@ public class CandidateController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> Update(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -576,6 +598,7 @@ public class CandidateController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Applicant")]
     public async Task<IActionResult> EditProfile(EditProfileViewModel model)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
