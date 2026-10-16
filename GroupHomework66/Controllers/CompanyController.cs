@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using GroupHomework66.Enums;
 using GroupHomework66.Models;
 using GroupHomework66.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -96,5 +97,31 @@ public class CompanyController : Controller
                 ProfilePicture = user.ProfilePicture
             }
         };
+    }
+    
+    [Authorize(Roles = "Company")]
+    public async Task<IActionResult> ResumesCatalog(VacancyCategory? category)
+    {
+        var query = _context.Resumes
+            .Where(r => r.IsPublished)
+            .Include(r => r.User)
+            .Include(r => r.WorkExperiences)
+            .AsQueryable();
+
+        if (category.HasValue)
+        {
+            query = query.Where(r => r.Category == category.Value);
+        }
+
+        var resumes = await query.ToListAsync();
+
+        var employerId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        ViewBag.EmployerVacancies = await _context.Vacancies
+            .Where(v => v.EmployerId == employerId && v.IsPublished)
+            .ToListAsync();
+
+        ViewBag.SelectedCategory = category;
+
+        return View(resumes);
     }
 }

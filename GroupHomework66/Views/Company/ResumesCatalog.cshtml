@@ -1,0 +1,51 @@
+﻿@model List<GroupHomework66.Models.Resume>
+@using GroupHomework66.Enums
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Каталог резюме соискателей";
+}
+
+<h1 class="mb-4">Каталог резюме соискателей</h1>
+
+<form method="get" asp-action="ResumesCatalog" class="card card-body bg-light mb-4 shadow-sm">
+    <div class="row g-3">
+        <div class="col-md-9">
+            <select name="category" class="form-select">
+                <option value="">Все категории</option>
+                @foreach (VacancyCategory category in Enum.GetValues(typeof(VacancyCategory)))
+                {
+                    <option value="@category" selected="@(ViewBag.SelectedCategory?.ToString() == category.ToString())">
+                        @category.GetDisplayName()
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
+            <a asp-action="ResumesCatalog" class="btn btn-outline-secondary">Сброс</a>
+        </div>
+    </div>
+</form>
+
+@if (Model.Count <= 0)
+{
+    <p class="text-muted">Резюме не найдены.</p>
+}
+else
+{
+    foreach (var resume in Model)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-2">@resume.Title</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @resume.Category.GetDisplayName() · Ожидаемая зарплата: @resume.ExpectedSalary.ToString("N0") сом
+                </h6>
+                <p class="card-text small text-muted mb-3">
+                    Соискатель: @resume.User?.UserName · Обновлено: @resume.UpdatedDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                </p>
+            </div>
+        </div>
+    }
+}

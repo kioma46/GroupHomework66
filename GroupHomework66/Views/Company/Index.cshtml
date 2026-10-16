@@ -15,9 +15,13 @@
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h1 class="mb-0">Мои вакансии</h1>
-    <a class="btn btn-primary" asp-controller="Vacancy" asp-action="Create">Создать вакансию</a>
+    <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-primary" asp-controller="Vacancy" asp-action="Create">
+            <i class="fa-solid fa-plus me-1"></i> Создать вакансию
+        </a>
+    </div>
 </div>
 
 @if (!Model.Vacancies.Any())

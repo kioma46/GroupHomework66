@@ -61,6 +61,10 @@
                             @if (User.IsInRole("Company"))
                             {
                                 <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Company" asp-action="ResumesCatalog">Просмотр резюме соискателей</a>
+                                </li>
+                                
+                                <li class="nav-item">
                                     <a class="nav-link text-dark" asp-controller="Response" asp-action="CompanyResponses">Отклики на вакансии</a>
                                 </li>
                                 <li class="nav-item">
