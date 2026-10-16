@@ -64,6 +64,7 @@ public class VacancyController : Controller
         return RedirectToAction(nameof(MyVacancies));
     }
 
+    [Authorize(Roles = "Applicant,Company")]
     public async Task<IActionResult> Details(int id)
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -205,7 +206,10 @@ public class VacancyController : Controller
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var vacancies = await _context.Vacancies.ToListAsync();
+        var vacancies = await _context.Vacancies
+            .Where(v => v.IsPublished)
+            .OrderByDescending(v => v.UpdatedDate)
+            .ToListAsync();
 
         var userResumeIds = await _context.Resumes
             .Where(r => r.UserId == userId)
